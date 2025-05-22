@@ -1,0 +1,15 @@
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\bin\Debug\net7.0\SponsorshipManagement.Infrastructure.deps.json
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\bin\Debug\net7.0\SponsorshipManagement.Infrastructure.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\bin\Debug\net7.0\SponsorshipManagement.Infrastructure.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\bin\Debug\net7.0\SponsorshipManagement.Domain.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\bin\Debug\net7.0\SponsorshipManagement.Domain.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.csproj.AssemblyReference.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.AssemblyInfoInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.AssemblyInfo.cs
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.csproj.CopyComplete
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\refint\SponsorshipManagement.Infrastructure.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\SponsorshipManagement.Infrastructure.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Infrastructure\obj\Debug\net7.0\ref\SponsorshipManagement.Infrastructure.dll

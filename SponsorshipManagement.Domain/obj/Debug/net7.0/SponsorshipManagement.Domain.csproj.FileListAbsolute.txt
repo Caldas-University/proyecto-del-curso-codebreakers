@@ -1,0 +1,11 @@
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\bin\Debug\net7.0\SponsorshipManagement.Domain.deps.json
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\bin\Debug\net7.0\SponsorshipManagement.Domain.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\bin\Debug\net7.0\SponsorshipManagement.Domain.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.AssemblyInfoInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.AssemblyInfo.cs
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.csproj.CoreCompileInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\refint\SponsorshipManagement.Domain.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\SponsorshipManagement.Domain.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Domain\obj\Debug\net7.0\ref\SponsorshipManagement.Domain.dll

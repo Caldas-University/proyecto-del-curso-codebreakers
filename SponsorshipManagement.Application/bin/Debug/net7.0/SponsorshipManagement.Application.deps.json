@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "SponsorshipManagement.Application/1.0.0": {
+        "dependencies": {
+          "SponsorshipManagement.Domain": "1.0.0"
+        },
+        "runtime": {
+          "SponsorshipManagement.Application.dll": {}
+        }
+      },
+      "SponsorshipManagement.Domain/1.0.0": {
+        "runtime": {
+          "SponsorshipManagement.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SponsorshipManagement.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SponsorshipManagement.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

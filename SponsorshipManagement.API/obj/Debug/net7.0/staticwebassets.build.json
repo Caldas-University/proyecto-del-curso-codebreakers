@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "M5yxtqTDVZQlMmdy8q3bxhkGYhTS7vkHuc5xpzkVW2E=",
+  "Source": "SponsorshipManagement.API",
+  "BasePath": "_content/SponsorshipManagement.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,15 @@
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\bin\Debug\net7.0\SponsorshipManagement.Application.deps.json
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\bin\Debug\net7.0\SponsorshipManagement.Application.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\bin\Debug\net7.0\SponsorshipManagement.Application.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\bin\Debug\net7.0\SponsorshipManagement.Domain.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\bin\Debug\net7.0\SponsorshipManagement.Domain.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.csproj.AssemblyReference.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.AssemblyInfoInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.AssemblyInfo.cs
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.csproj.CoreCompileInputs.cache
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.csproj.CopyComplete
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\refint\SponsorshipManagement.Application.dll
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\SponsorshipManagement.Application.pdb
+D:\Academico\UNIVERSIDAD\8. octavo semestre\Ingeniería de software 2\Proyecto\ejemplo\SponsorshipManagement.Application\obj\Debug\net7.0\ref\SponsorshipManagement.Application.dll

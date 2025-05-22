@@ -1,0 +1,248 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.API\\SponsorshipManagement.API.csproj": {}
+  },
+  "projects": {
+    "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.API\\SponsorshipManagement.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.API\\SponsorshipManagement.API.csproj",
+        "projectName": "SponsorshipManagement.API",
+        "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.API\\SponsorshipManagement.API.csproj",
+        "packagesPath": "C:\\Users\\jonat\\.nuget\\packages\\",
+        "outputPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.API\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\jonat\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\SponsorshipManagement.Application.csproj": {
+                "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\SponsorshipManagement.Application.csproj"
+              },
+              "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\SponsorshipManagement.Infrastructure.csproj": {
+                "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\SponsorshipManagement.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\SponsorshipManagement.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\SponsorshipManagement.Application.csproj",
+        "projectName": "SponsorshipManagement.Application",
+        "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\SponsorshipManagement.Application.csproj",
+        "packagesPath": "C:\\Users\\jonat\\.nuget\\packages\\",
+        "outputPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\jonat\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj": {
+                "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj",
+        "projectName": "SponsorshipManagement.Domain",
+        "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj",
+        "packagesPath": "C:\\Users\\jonat\\.nuget\\packages\\",
+        "outputPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\jonat\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\SponsorshipManagement.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\SponsorshipManagement.Infrastructure.csproj",
+        "projectName": "SponsorshipManagement.Infrastructure",
+        "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\SponsorshipManagement.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\jonat\\.nuget\\packages\\",
+        "outputPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\jonat\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj": {
+                "projectPath": "D:\\Academico\\UNIVERSIDAD\\8. octavo semestre\\Ingeniería de software 2\\Proyecto\\ejemplo\\SponsorshipManagement.Domain\\SponsorshipManagement.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
