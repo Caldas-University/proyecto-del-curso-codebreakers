@@ -10,7 +10,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
 {
     public class SponsorRepository : ISponsorRepository
     {
-        private readonly string _jsonFilePath = "D:/Academico/UNIVERSIDAD/8. octavo semestre/Ingeniería de software 2/Proyecto/Proyecto/SponsorshipManagement.Infrastructure/Data/sponsors.json";
+        private readonly string _jsonFilePath = "./../SponsorshipManagement.Infrastructure/Data/sponsors.json";
 
         private async Task<List<Sponsor>> LoadSponsorsAsync()
         {

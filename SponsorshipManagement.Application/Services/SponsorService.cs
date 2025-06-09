@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using SponsorshipManagement.Application.Dtos;
 using SponsorshipManagement.Application.Interfaces;
+using SponsorshipManagement.Domain.Entities;
 using SponsorshipManagement.Domain.Interfaces;
 
 namespace SponsorshipManagement.Application.Services
@@ -17,6 +19,23 @@ namespace SponsorshipManagement.Application.Services
         {
             var sponsor = await _sponsorRepository.GetByDocumentAsync(documentNumber);
             return sponsor != null;
+        }
+
+        public async Task<SponsorDto?> GetSponsorByDocumentAsync(string documentNumber)
+        {
+            var sponsor = await _sponsorRepository.GetByDocumentAsync(documentNumber);
+            if (sponsor == null)
+            {
+                return null;
+            }
+            // Aquí no usamos el Mapper de la API directamente, 
+            // devolvemos un DTO desde la capa de aplicación.
+            return new SponsorDto 
+            { 
+                Id = sponsor.Id, 
+                DocumentNumber = sponsor.DocumentNumber, 
+                Name = sponsor.Name 
+            };
         }
     }
 }
