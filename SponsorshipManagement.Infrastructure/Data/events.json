@@ -1,0 +1,16 @@
+[
+  {
+    "Id": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "Place": "Lima",
+    "Fund": 10000,
+    "Capacity": 200,
+    "Sponsors": ["Company1"]
+  },
+  {
+    "Id": "c2b8f3f2-2d3e-4f4c-9b8c-2345678901bc",
+    "Place": "Arequipa",
+    "Fund": 5000,
+    "Capacity": 100,
+    "Sponsors": ["Company2"]
+  }
+]
