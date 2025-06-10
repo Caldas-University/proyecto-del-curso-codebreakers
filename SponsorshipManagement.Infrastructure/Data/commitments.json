@@ -1,0 +1,24 @@
+[
+  {
+    "Id": "111a05d7-b089-4298-a380-d76aa024a717",
+    "ContractId": "123e4567-e89b-12d3-a456-426614174000",
+    "Description": "Compromiso de patrocinio",
+    "Obligations": "Pagar $10,000 USD en 30 d\u00EDas",
+    "DueDate": "2024-07-10T00:00:00Z",
+    "Responsible": "Juan P\u00E9rez",
+    "Status": 0,
+    "CreatedAt": "2025-06-10T17:23:16.7134488Z",
+    "UpdatedAt": null
+  },
+  {
+    "Id": "3e87063e-d18f-4c04-b3a4-7ac6fdd90ac3",
+    "ContractId": "123e4567-e89b-12d3-a456-426614174001",
+    "Description": "Patrocinio para evento deportivo",
+    "Obligations": "Proporcionar equipamiento deportivo por valor de $15,000 USD y logo en camisetas durante el evento",
+    "DueDate": "2024-08-15T10:00:00Z",
+    "Responsible": "Mar\u00EDa Gonz\u00E1lez - Gerente de Marketing",
+    "Status": 0,
+    "CreatedAt": "2025-06-10T17:35:25.0974476Z",
+    "UpdatedAt": null
+  }
+]
