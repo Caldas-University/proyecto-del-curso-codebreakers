@@ -14,18 +14,16 @@ builder.Services.AddScoped<ISponsorService, SponsorService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 
-// 🎯 NUEVOS SERVICIOS PARA CU-PA-02.01.3 - Validación de existencia del contrato
-// Registrar repositorio de contratos (dependencia de CU-PA-01)
+// 🎯 SERVICIOS PARA CU-PA-02.01.3 - Validación de existencia del contrato
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
-
-// Registrar servicio de validación de contratos
 builder.Services.AddScoped<IContractValidationService, ContractValidationService>();
 
 // 🎯 SERVICIOS PARA CU-PA-02.01 - Sistema de compromisos
-// Registrar repositorio de compromisos (recibe IContractRepository por DI)
 builder.Services.AddScoped<ICommitmentRepository, CommitmentRepository>();
 
-// Registrar servicio de compromisos (recibe ICommitmentRepository y IContractValidationService por DI)
+// 🎯 NUEVO: CU-PA-02.01.4 - Gestión de estados
+builder.Services.AddScoped<CommitmentStateService>();
+
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
 // 📋 CONFIGURACIÓN DE ASP.NET CORE
@@ -46,12 +44,15 @@ builder.Services.AddSwaggerGen(c =>
 • CU-PA-02.01.1: Crear modelo y repositorio de compromisos  
 • CU-PA-02.01.2: Endpoint para registrar compromisos
 • CU-PA-02.01.3: Validación de existencia del contrato
+• CU-PA-02.01.4: Asignación de estado inicial 'pendiente'
 
 📋 Endpoints Principales:
 • POST /api/Commitment - Registrar nuevo compromiso
 • GET /api/Commitment - Obtener todos los compromisos
 • GET /api/Commitment/{id} - Obtener compromiso por ID
-• GET /api/Commitment/contract/{contractId} - Compromisos por contrato",
+• GET /api/Commitment/contract/{contractId} - Compromisos por contrato
+• PUT /api/CommitmentState/{id}/status - Cambiar estado de compromiso
+• GET /api/CommitmentState/statistics - Estadísticas de estados",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "CodeBreakers Team",
@@ -133,10 +134,7 @@ logger.LogInformation("   - CU-PA-02.01: Registrar compromisos contractuales");
 logger.LogInformation("   - CU-PA-02.01.1: Crear modelo y repositorio de compromisos");
 logger.LogInformation("   - CU-PA-02.01.2: Endpoint para registrar compromisos");  
 logger.LogInformation("   - CU-PA-02.01.3: Validación de existencia del contrato");
-
-if (app.Environment.IsDevelopment())
-{
-    logger.LogInformation("🔗 Swagger UI disponible en: /swagger");
-}
+logger.LogInformation("   - CU-PA-02.01.4: Asignación de estado inicial 'pendiente'");
+logger.LogInformation("📱 Swagger UI disponible en: /swagger");
 
 app.Run();

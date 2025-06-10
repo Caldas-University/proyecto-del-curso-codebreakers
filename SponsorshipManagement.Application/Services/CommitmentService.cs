@@ -9,123 +9,45 @@ namespace SponsorshipManagement.Application.Services
     {
         private readonly ICommitmentRepository _commitmentRepository;
         private readonly IContractValidationService? _contractValidationService;
+        private readonly CommitmentStateService? _stateService;
 
-        // Constructor con validación de contratos (DI completa)
+        // Constructors existentes...
+        public CommitmentService(
+            ICommitmentRepository commitmentRepository,
+            IContractValidationService contractValidationService,
+            CommitmentStateService stateService)
+        {
+            _commitmentRepository = commitmentRepository;
+            _contractValidationService = contractValidationService;
+            _stateService = stateService;
+        }
+
         public CommitmentService(
             ICommitmentRepository commitmentRepository,
             IContractValidationService contractValidationService)
         {
             _commitmentRepository = commitmentRepository;
             _contractValidationService = contractValidationService;
+            _stateService = null;
         }
 
-        // Constructor sin validación de contratos (fallback)
         public CommitmentService(ICommitmentRepository commitmentRepository)
         {
             _commitmentRepository = commitmentRepository;
             _contractValidationService = null;
+            _stateService = null;
         }
+
+        // ...existing methods...
 
         public async Task<CommitmentDto?> GetCommitmentByIdAsync(Guid id)
         {
-            var commitment = await _commitmentRepository.GetByIdAsync(id);
-            if (commitment == null) return null;
-
-            return new CommitmentDto
-            {
-                Id = commitment.Id.ToString(),
-                ContractId = commitment.ContractId.ToString(),
-                Description = commitment.Description,
-                Obligations = commitment.Obligations,
-                DueDate = commitment.DueDate,
-                Responsible = commitment.Responsible,
-                Status = commitment.Status.ToString(),
-                CreatedAt = commitment.CreatedAt,
-                UpdatedAt = commitment.UpdatedAt
-            };
-        }
-
-        public async Task<IEnumerable<CommitmentDto>> GetCommitmentsByContractIdAsync(Guid contractId)
-        {
-            var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
-            return commitments.Select(c => new CommitmentDto
-            {
-                Id = c.Id.ToString(),
-                ContractId = c.ContractId.ToString(),
-                Description = c.Description,
-                Obligations = c.Obligations,
-                DueDate = c.DueDate,
-                Responsible = c.Responsible,
-                Status = c.Status.ToString(),
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt
-            });
-        }
-
-        public async Task<IEnumerable<CommitmentDto>> GetAllCommitmentsAsync()
-        {
-            var commitments = await _commitmentRepository.GetAllAsync();
-            return commitments.Select(c => new CommitmentDto
-            {
-                Id = c.Id.ToString(),
-                ContractId = c.ContractId.ToString(),
-                Description = c.Description,
-                Obligations = c.Obligations,
-                DueDate = c.DueDate,
-                Responsible = c.Responsible,
-                Status = c.Status.ToString(),
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt
-            });
-        }
-
-        /// <summary>
-        /// 🎯 CU-PA-02.01 - Registrar compromisos contractuales
-        /// Implementa validación completa incluyendo CU-PA-02.01.3
-        /// </summary>
-        /// <param name="request">Datos del compromiso a crear</param>
-        /// <returns>DTO del compromiso creado</returns>
-        /// <exception cref="ArgumentException">A2: Faltan datos obligatorios</exception>
-        /// <exception cref="InvalidOperationException">A1: El contrato no existe o no es válido</exception>
-        public async Task<CommitmentDto?> CreateCommitmentAsync(CreateCommitmentRequest request)
-        {
             try
             {
-                // 🔍 PASO 1: Validación de datos obligatorios (CU-PA-02.01 - Flujo Alterno A2)
-                await ValidateRequestDataAsync(request);
+                var commitment = await _commitmentRepository.GetByIdAsync(id);
+                if (commitment == null) 
+                    return null;
 
-                // 🔍 PASO 2: Parsear y validar formato de ContractId
-                if (!Guid.TryParse(request.ContractId, out var contractId))
-                {
-                    throw new ArgumentException("El formato del ID del contrato es inválido. Debe ser un GUID válido.");
-                }
-
-                // 🎯 PASO 3: CU-PA-02.01.3 - Validación de existencia del contrato
-                await ValidateContractExistenceAsync(contractId);
-
-                // 🔍 PASO 4: Validaciones de negocio adicionales
-                await ValidateBusinessRulesAsync(request);
-
-                // ✅ PASO 5: Crear el compromiso con estado inicial "pendiente"
-                var commitment = new Commitment(
-                    contractId,
-                    request.Description.Trim(),
-                    request.Obligations.Trim(),
-                    request.DueDate,
-                    request.Responsible.Trim()
-                );
-
-                // 📝 PASO 6: Registrar auditoría al crear compromiso (CU-PA-02.01.5)
-                await RegisterAuditLogAsync("CREATE_COMMITMENT", commitment);
-
-                // 💾 PASO 7: Almacenar en repositorio
-                var success = await _commitmentRepository.AddAsync(commitment);
-                if (!success)
-                {
-                    throw new InvalidOperationException("Error interno: No se pudo almacenar el compromiso en el repositorio");
-                }
-
-                // 📤 PASO 8: Retornar DTO del compromiso creado
                 return new CommitmentDto
                 {
                     Id = commitment.Id.ToString(),
@@ -139,204 +61,210 @@ namespace SponsorshipManagement.Application.Services
                     UpdatedAt = commitment.UpdatedAt
                 };
             }
-            catch (ArgumentException)
-            {
-                // Re-throw validation errors (A2)
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                // Re-throw business logic errors (A1)
-                throw;
-            }
             catch (Exception ex)
             {
-                // Wrap unexpected errors
-                throw new InvalidOperationException($"Error inesperado al crear el compromiso: {ex.Message}", ex);
+                Console.WriteLine($"❌ Error obteniendo compromiso {id}: {ex.Message}");
+                return null;
             }
         }
 
-        /// <summary>
-        /// Valida que todos los datos obligatorios estén presentes y sean válidos
-        /// </summary>
-        private static async Task ValidateRequestDataAsync(CreateCommitmentRequest request)
-        {
-            var errors = new List<string>();
-
-            // Validar que el request no sea null
-            if (request == null)
-            {
-                throw new ArgumentException("Los datos del compromiso son obligatorios");
-            }
-
-            // Validar campos obligatorios
-            if (string.IsNullOrWhiteSpace(request.ContractId))
-                errors.Add("ContractId es obligatorio");
-
-            if (string.IsNullOrWhiteSpace(request.Description))
-                errors.Add("Description es obligatoria");
-
-            if (string.IsNullOrWhiteSpace(request.Obligations))
-                errors.Add("Obligations es obligatorio");
-
-            if (string.IsNullOrWhiteSpace(request.Responsible))
-                errors.Add("Responsible es obligatorio");
-
-            // 🔧 VALIDACIÓN DE FECHA MEJORADA
-            if (request.DueDate != default(DateTime))
-            {
-                // Validar que la fecha sea futura (con margen de 1 día para testing)
-                var currentDate = DateTime.UtcNow.Date;
-                var dueDate = request.DueDate.Date;
-                
-                if (dueDate < currentDate)
-                {
-                    errors.Add($"DueDate debe ser una fecha futura. Fecha actual: {currentDate:yyyy-MM-dd}, Fecha proporcionada: {dueDate:yyyy-MM-dd}");
-                }
-            }
-            else
-            {
-                errors.Add("DueDate es obligatorio");
-            }
-
-            // Validar longitudes máximas
-            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
-                errors.Add("Description no puede exceder 500 caracteres");
-
-            if (!string.IsNullOrWhiteSpace(request.Obligations) && request.Obligations.Length > 1000)
-                errors.Add("Obligations no puede exceder 1000 caracteres");
-
-            if (!string.IsNullOrWhiteSpace(request.Responsible) && request.Responsible.Length > 200)
-                errors.Add("Responsible no puede exceder 200 caracteres");
-
-            // Si hay errores, lanzar excepción con todos los problemas
-            if (errors.Any())
-            {
-                var errorMessage = $"Faltan datos obligatorios o son inválidos: {string.Join(", ", errors)}";
-                Console.WriteLine($"❌ Validación fallida: {errorMessage}");
-                throw new ArgumentException(errorMessage);
-            }
-
-            Console.WriteLine("✅ Validación de datos exitosa");
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// 🎯 CU-PA-02.01.3: Validación de existencia del contrato
-        /// </summary>
-        private async Task ValidateContractExistenceAsync(Guid contractId)
+        public async Task<IEnumerable<CommitmentDto>> GetCommitmentsByContractIdAsync(Guid contractId)
         {
             try
             {
-                // Si tenemos el servicio de validación completo, usarlo
+                var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
+                return commitments.Select(c => new CommitmentDto
+                {
+                    Id = c.Id.ToString(),
+                    ContractId = c.ContractId.ToString(),
+                    Description = c.Description,
+                    Obligations = c.Obligations,
+                    DueDate = c.DueDate,
+                    Responsible = c.Responsible,
+                    Status = c.Status.ToString(),
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error obteniendo compromisos del contrato {contractId}: {ex.Message}");
+                return Enumerable.Empty<CommitmentDto>();
+            }
+        }
+
+        public async Task<IEnumerable<CommitmentDto>> GetAllCommitmentsAsync()
+        {
+            try
+            {
+                var commitments = await _commitmentRepository.GetAllAsync();
+                return commitments.Select(c => new CommitmentDto
+                {
+                    Id = c.Id.ToString(),
+                    ContractId = c.ContractId.ToString(),
+                    Description = c.Description,
+                    Obligations = c.Obligations,
+                    DueDate = c.DueDate,
+                    Responsible = c.Responsible,
+                    Status = c.Status.ToString(),
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error obteniendo compromisos: {ex.Message}");
+                return Enumerable.Empty<CommitmentDto>();
+            }
+        }
+
+        /// <summary>
+        /// 🎯 CU-PA-02.01.4: Obtiene estadísticas de compromisos por contrato
+        /// </summary>
+        public async Task<CommitmentStatisticsDto> GetCommitmentStatisticsAsync(Guid contractId)
+        {
+            try
+            {
+                Console.WriteLine($"📊 Obteniendo estadísticas para contrato {contractId}");
+
+                var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
+                var commitmentsList = commitments.ToList();
+
+                // Obtener información del contrato si está disponible
+                string? contractTitle = null;
+                string? contractStatus = null;
+                
                 if (_contractValidationService != null)
                 {
-                    var validationResult = await _contractValidationService.ValidateContractForCommitmentAsync(contractId);
-                    
-                    if (!validationResult.IsValid)
+                    try
                     {
-                        // A1: El contrato no existe o no es válido
-                        throw new InvalidOperationException(
-                            validationResult.ErrorMessage ?? "El contrato no es válido para crear compromisos"
-                        );
+                        var validationResult = await _contractValidationService.ValidateContractForCommitmentAsync(contractId);
+                        if (validationResult.IsValid && validationResult.Contract != null)
+                        {
+                            contractTitle = validationResult.Contract.Title;
+                            contractStatus = validationResult.Contract.Status.ToString();
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"⚠️ No se pudo obtener información del contrato: {ex.Message}");
+                    }
+                }
 
-                    // Log adicional para auditoría
-                    Console.WriteLine($"✅ Contrato {contractId} validado exitosamente para compromisos");
+                // Calcular estadísticas
+                var stats = new CommitmentStatisticsDto
+                {
+                    ContractId = contractId.ToString(),
+                    ContractTitle = contractTitle,
+                    ContractStatus = contractStatus,
+                    TotalCommitments = commitmentsList.Count,
+                    PendingCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Pending),
+                    InProgressCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.InProgress),
+                    CompletedCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Completed),
+                    CancelledCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Cancelled),
+                    OverdueCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Overdue),
+                    OnHoldCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.OnHold),
+                    GeneratedAt = DateTime.UtcNow
+                };
+
+                // Calcular porcentajes
+                if (stats.TotalCommitments > 0)
+                {
+                    stats.CompletionRate = Math.Round((double)stats.CompletedCommitments / stats.TotalCommitments * 100, 2);
+                    stats.PendingRate = Math.Round((double)stats.PendingCommitments / stats.TotalCommitments * 100, 2);
+                    stats.OverdueRate = Math.Round((double)stats.OverdueCommitments / stats.TotalCommitments * 100, 2);
+                }
+
+                Console.WriteLine($"✅ Estadísticas generadas: {stats.TotalCommitments} compromisos, {stats.CompletionRate}% completados");
+                return stats;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al obtener estadísticas para contrato {contractId}: {ex.Message}");
+                return new CommitmentStatisticsDto 
+                { 
+                    ContractId = contractId.ToString(),
+                    GeneratedAt = DateTime.UtcNow
+                };
+            }
+        }
+
+        // ...existing methods como CreateCommitmentAsync, UpdateCommitmentAsync, etc...
+
+        public async Task<CommitmentDto?> CreateCommitmentAsync(CreateCommitmentRequest request)
+        {
+            try
+            {
+                // PASO 1-3: Validaciones existentes
+                await ValidateRequestDataAsync(request);
+                
+                if (!Guid.TryParse(request.ContractId, out var contractId))
+                {
+                    throw new ArgumentException("El formato del ID del contrato es inválido. Debe ser un GUID válido.");
+                }
+
+                await ValidateContractExistenceAsync(contractId);
+                await ValidateBusinessRulesAsync(request);
+
+                // ✅ PASO 4: Crear el compromiso 
+                // 🎯 CU-PA-02.01.4: El constructor asigna automáticamente estado "Pending"
+                var commitment = new Commitment(
+                    contractId,
+                    request.Description.Trim(),
+                    request.Obligations.Trim(),
+                    request.DueDate,
+                    request.Responsible.Trim()
+                );
+
+                Console.WriteLine($"🎯 CU-PA-02.01.4: Compromiso creado con estado inicial: {commitment.Status}");
+
+                // PASO 5: Almacenar en repositorio
+                var success = await _commitmentRepository.AddAsync(commitment);
+                if (!success)
+                {
+                    throw new InvalidOperationException("Error interno: No se pudo almacenar el compromiso");
+                }
+
+                // 🎯 PASO 6: CU-PA-02.01.4 - Inicializar y validar estado
+                if (_stateService != null)
+                {
+                    await _stateService.InitializeCommitmentStateAsync(commitment.Id);
                 }
                 else
                 {
-                    // Fallback: usar validación básica del repositorio
-                    var contractExists = await _commitmentRepository.ContractExistsAsync(contractId);
-                    
-                    if (!contractExists)
-                    {
-                        // A1: El contrato no existe
-                        throw new InvalidOperationException(
-                            "El contrato especificado no existe o no está disponible para compromisos"
-                        );
-                    }
-
-                    Console.WriteLine($"✅ Contrato {contractId} validado (validación básica)");
+                    Console.WriteLine("⚠️ StateService no disponible, usando estado por defecto del constructor");
                 }
+
+                // PASO 7: Registrar auditoría
+                await RegisterAuditLogAsync("CREATE_COMMITMENT", commitment);
+
+                Console.WriteLine($"✅ Compromiso {commitment.Id} creado exitosamente en estado {commitment.Status}");
+
+                // PASO 8: Retornar DTO
+                return new CommitmentDto
+                {
+                    Id = commitment.Id.ToString(),
+                    ContractId = commitment.ContractId.ToString(),
+                    Description = commitment.Description,
+                    Obligations = commitment.Obligations,
+                    DueDate = commitment.DueDate,
+                    Responsible = commitment.Responsible,
+                    Status = commitment.Status.ToString(), // 🎯 Siempre será "Pending"
+                    CreatedAt = commitment.CreatedAt,
+                    UpdatedAt = commitment.UpdatedAt
+                };
+            }
+            catch (ArgumentException)
+            {
+                throw;
             }
             catch (InvalidOperationException)
             {
-                // Re-throw business errors
                 throw;
             }
             catch (Exception ex)
             {
-                // Wrap validation errors
-                throw new InvalidOperationException(
-                    $"Error al validar la existencia del contrato: {ex.Message}", ex
-                );
-            }
-        }
-
-        /// <summary>
-        /// Validaciones de reglas de negocio adicionales
-        /// </summary>
-        private async Task ValidateBusinessRulesAsync(CreateCommitmentRequest request)
-        {
-            // Validar que no sea un fin de semana para compromisos urgentes
-            if (request.DueDate.DayOfWeek == DayOfWeek.Saturday || 
-                request.DueDate.DayOfWeek == DayOfWeek.Sunday)
-            {
-                var daysDifference = (request.DueDate - DateTime.UtcNow).Days;
-                if (daysDifference <= 7)
-                {
-                    Console.WriteLine($"⚠️ Advertencia: Compromiso con vencimiento en fin de semana ({request.DueDate:yyyy-MM-dd})");
-                }
-            }
-
-            // Validar que no haya muchos compromisos para el mismo contrato en la misma fecha
-            if (Guid.TryParse(request.ContractId, out var contractId))
-            {
-                var existingCommitments = await _commitmentRepository.GetByContractIdAsync(contractId);
-                var sameDateCommitments = existingCommitments.Count(c => c.DueDate.Date == request.DueDate.Date);
-                
-                if (sameDateCommitments >= 5)
-                {
-                    Console.WriteLine($"⚠️ Advertencia: El contrato {contractId} ya tiene {sameDateCommitments} compromisos para la fecha {request.DueDate:yyyy-MM-dd}");
-                }
-            }
-
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Registra auditoría para el compromiso (CU-PA-02.01.5)
-        /// </summary>
-        private static async Task RegisterAuditLogAsync(string action, Commitment commitment)
-        {
-            try
-            {
-                // En una implementación real, esto iría a un sistema de auditoría
-                var auditEntry = new
-                {
-                    Action = action,
-                    CommitmentId = commitment.Id,
-                    ContractId = commitment.ContractId,
-                    Timestamp = DateTime.UtcNow,
-                    Details = new
-                    {
-                        commitment.Description,
-                        commitment.DueDate,
-                        commitment.Responsible,
-                        commitment.Status
-                    }
-                };
-
-                // Por ahora, solo log en consola
-                Console.WriteLine($"📝 AUDIT LOG: {action} - Commitment {commitment.Id} for Contract {commitment.ContractId} at {auditEntry.Timestamp}");
-                
-                await Task.CompletedTask;
-            }
-            catch (Exception ex)
-            {
-                // No fallar por errores de auditoría, solo logear
-                Console.WriteLine($"❌ Error en auditoría: {ex.Message}");
+                throw new InvalidOperationException($"Error inesperado al crear el compromiso: {ex.Message}", ex);
             }
         }
 
@@ -402,7 +330,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al eliminar compromiso {id}: {ex.Message}");
+                Console.WriteLine($"❌ Error al eliminar compromiso {id}: {ex.Message}");
                 return false;
             }
         }
@@ -427,56 +355,173 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener compromisos vencidos: {ex.Message}");
+                Console.WriteLine($"❌ Error al obtener compromisos vencidos: {ex.Message}");
                 return Enumerable.Empty<CommitmentDto>();
             }
         }
 
-        /// <summary>
-        /// Método adicional para obtener estadísticas de compromisos por contrato
-        /// </summary>
-        public async Task<CommitmentStatisticsDto> GetCommitmentStatisticsAsync(Guid contractId)
+        #region Private Methods
+
+        private static async Task ValidateRequestDataAsync(CreateCommitmentRequest request)
+        {
+            var errors = new List<string>();
+
+            if (request == null)
+            {
+                throw new ArgumentException("Los datos del compromiso son obligatorios");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.ContractId))
+                errors.Add("ContractId es obligatorio");
+
+            if (string.IsNullOrWhiteSpace(request.Description))
+                errors.Add("Description es obligatoria");
+
+            if (string.IsNullOrWhiteSpace(request.Obligations))
+                errors.Add("Obligations es obligatorio");
+
+            if (string.IsNullOrWhiteSpace(request.Responsible))
+                errors.Add("Responsible es obligatorio");
+
+            if (request.DueDate != default(DateTime))
+            {
+                var currentDate = DateTime.UtcNow.Date;
+                var dueDate = request.DueDate.Date;
+                
+                if (dueDate < currentDate)
+                {
+                    errors.Add($"DueDate debe ser una fecha futura. Fecha actual: {currentDate:yyyy-MM-dd}, Fecha proporcionada: {dueDate:yyyy-MM-dd}");
+                }
+            }
+            else
+            {
+                errors.Add("DueDate es obligatorio");
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Description) && request.Description.Length > 500)
+                errors.Add("Description no puede exceder 500 caracteres");
+
+            if (!string.IsNullOrWhiteSpace(request.Obligations) && request.Obligations.Length > 1000)
+                errors.Add("Obligations no puede exceder 1000 caracteres");
+
+            if (!string.IsNullOrWhiteSpace(request.Responsible) && request.Responsible.Length > 200)
+                errors.Add("Responsible no puede exceder 200 caracteres");
+
+            if (errors.Any())
+            {
+                var errorMessage = $"Faltan datos obligatorios o son inválidos: {string.Join(", ", errors)}";
+                Console.WriteLine($"❌ Validación fallida: {errorMessage}");
+                throw new ArgumentException(errorMessage);
+            }
+
+            Console.WriteLine("✅ Validación de datos exitosa");
+            await Task.CompletedTask;
+        }
+
+        private async Task ValidateContractExistenceAsync(Guid contractId)
         {
             try
             {
-                var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
-                var commitmentsList = commitments.ToList();
+                Console.WriteLine($"🔍 CU-PA-02.01.3: Validando existencia del contrato {contractId}");
 
-                return new CommitmentStatisticsDto
+                if (_contractValidationService != null)
                 {
-                    ContractId = contractId.ToString(),
-                    TotalCommitments = commitmentsList.Count,
-                    PendingCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Pending),
-                    InProgressCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.InProgress),
-                    CompletedCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Completed),
-                    CancelledCommitments = commitmentsList.Count(c => c.Status == CommitmentStatus.Cancelled),
-                    OverdueCommitments = commitmentsList.Count(c => 
-                        c.DueDate < DateTime.UtcNow && c.Status == CommitmentStatus.Pending),
-                    CompletionRate = commitmentsList.Count > 0 
-                        ? (double)commitmentsList.Count(c => c.Status == CommitmentStatus.Completed) / commitmentsList.Count * 100 
-                        : 0
-                };
+                    var validationResult = await _contractValidationService.ValidateContractForCommitmentAsync(contractId);
+                    
+                    if (!validationResult.IsValid)
+                    {
+                        Console.WriteLine($"❌ A1 - Contrato inválido: {validationResult.ErrorMessage}");
+                        throw new InvalidOperationException(
+                            validationResult.ErrorMessage ?? "El contrato no es válido para crear compromisos"
+                        );
+                    }
+
+                    Console.WriteLine($"✅ CU-PA-02.01.3: Contrato {contractId} validado exitosamente");
+                }
+                else
+                {
+                    Console.WriteLine("⚠️ Usando validación básica (fallback)");
+                    var contractExists = await _commitmentRepository.ContractExistsAsync(contractId);
+                    
+                    if (!contractExists)
+                    {
+                        Console.WriteLine($"❌ A1 - Contrato no encontrado: {contractId}");
+                        throw new InvalidOperationException(
+                            "El contrato especificado no existe o no está disponible para compromisos"
+                        );
+                    }
+
+                    Console.WriteLine($"✅ Contrato {contractId} validado (validación básica)");
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener estadísticas para contrato {contractId}: {ex.Message}");
-                return new CommitmentStatisticsDto { ContractId = contractId.ToString() };
+                Console.WriteLine($"❌ Error inesperado en CU-PA-02.01.3: {ex.Message}");
+                throw new InvalidOperationException(
+                    $"Error al validar la existencia del contrato: {ex.Message}", ex
+                );
             }
         }
-    }
 
-    /// <summary>
-    /// DTO para estadísticas de compromisos
-    /// </summary>
-    public class CommitmentStatisticsDto
-    {
-        public string ContractId { get; set; } = string.Empty;
-        public int TotalCommitments { get; set; }
-        public int PendingCommitments { get; set; }
-        public int InProgressCommitments { get; set; }
-        public int CompletedCommitments { get; set; }
-        public int CancelledCommitments { get; set; }
-        public int OverdueCommitments { get; set; }
-        public double CompletionRate { get; set; }
+        private async Task ValidateBusinessRulesAsync(CreateCommitmentRequest request)
+        {
+            if (request.DueDate.DayOfWeek == DayOfWeek.Saturday || 
+                request.DueDate.DayOfWeek == DayOfWeek.Sunday)
+            {
+                var daysDifference = (request.DueDate - DateTime.UtcNow).Days;
+                if (daysDifference <= 7)
+                {
+                    Console.WriteLine($"⚠️ Advertencia: Compromiso con vencimiento en fin de semana ({request.DueDate:yyyy-MM-dd})");
+                }
+            }
+
+            if (Guid.TryParse(request.ContractId, out var contractId))
+            {
+                var existingCommitments = await _commitmentRepository.GetByContractIdAsync(contractId);
+                var sameDateCommitments = existingCommitments.Count(c => c.DueDate.Date == request.DueDate.Date);
+                
+                if (sameDateCommitments >= 5)
+                {
+                    Console.WriteLine($"⚠️ Advertencia: El contrato {contractId} ya tiene {sameDateCommitments} compromisos para la fecha {request.DueDate:yyyy-MM-dd}");
+                }
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private static async Task RegisterAuditLogAsync(string action, Commitment commitment)
+        {
+            try
+            {
+                var auditEntry = new
+                {
+                    Action = action,
+                    CommitmentId = commitment.Id,
+                    ContractId = commitment.ContractId,
+                    Timestamp = DateTime.UtcNow,
+                    Details = new
+                    {
+                        commitment.Description,
+                        commitment.DueDate,
+                        commitment.Responsible,
+                        commitment.Status
+                    }
+                };
+
+                Console.WriteLine($"📝 AUDIT LOG: {action} - Commitment {commitment.Id} for Contract {commitment.ContractId} at {auditEntry.Timestamp}");
+                
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en auditoría: {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }
