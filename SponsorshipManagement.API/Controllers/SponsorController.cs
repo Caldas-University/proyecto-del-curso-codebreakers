@@ -59,5 +59,15 @@ namespace SponsorshipManagement.API.Controllers
             // En un caso real, llamarías al servicio para crear el recurso y luego devolverías el resultado.
             return CreatedAtAction(nameof(GetSponsorByDocument), new { documentNumber = sponsorDto.DocumentNumber }, sponsorDto);
         }
+
+        [HttpGet("requirements-status/{documentNumber}")]
+        public async Task<IActionResult> GetSponsorRequirementsStatus(string documentNumber)
+        {
+            var sponsorDto = await _sponsorService.GetSponsorByDocumentAsync(documentNumber);
+            if (sponsorDto == null)
+                return NotFound();
+            var isValid = !string.IsNullOrEmpty(sponsorDto.Role) && sponsorDto.HasDocumentation;
+            return Ok(new { isValid });
+        }
     }
 }

@@ -2,12 +2,16 @@
   {
     "Id": "e6e3d3b1-1c58-4b58-9a8e-123456789abc",
     "DocumentNumber": "123456789",
-    "Name": "Patrocinador Uno"
+    "Name": "Patrocinador Uno",
+    "Role": "Empresa",
+    "HasDocumentation": true
   },
   {
     "Id": "a1f2b3c4-5678-9101-1121-314151617181",
     "DocumentNumber": "987654321",
-    "Name": "Patrocinador Dos"
+    "Name": "Patrocinador Dos",
+    "Role": "Persona",
+    "HasDocumentation": false
   }
 ]
 

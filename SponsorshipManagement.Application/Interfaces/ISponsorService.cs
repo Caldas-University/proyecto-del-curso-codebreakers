@@ -7,5 +7,6 @@ namespace SponsorshipManagement.Application.Interfaces
     {
         Task<bool> SponsorExistsAsync(string documentNumber);
         Task<SponsorDto?> GetSponsorByDocumentAsync(string documentNumber);
+        Task<bool> ValidateSponsorRequirementsAsync(string documentNumber, string requiredRole, bool requireDocumentation);
     }
 }

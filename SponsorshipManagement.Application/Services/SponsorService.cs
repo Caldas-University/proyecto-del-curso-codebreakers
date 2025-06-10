@@ -28,14 +28,26 @@ namespace SponsorshipManagement.Application.Services
             {
                 return null;
             }
-            // Aquí no usamos el Mapper de la API directamente, 
-            // devolvemos un DTO desde la capa de aplicación.
             return new SponsorDto 
             { 
                 Id = sponsor.Id, 
                 DocumentNumber = sponsor.DocumentNumber, 
-                Name = sponsor.Name 
+                Name = sponsor.Name,
+                Role = sponsor.Role,
+                HasDocumentation = sponsor.HasDocumentation
             };
+        }
+
+        public async Task<bool> ValidateSponsorRequirementsAsync(string documentNumber, string requiredRole, bool requireDocumentation)
+        {
+            var sponsor = await _sponsorRepository.GetByDocumentAsync(documentNumber);
+            if (sponsor == null)
+                return false;
+            if (!string.IsNullOrEmpty(requiredRole) && sponsor.Role != requiredRole)
+                return false;
+            if (requireDocumentation && !sponsor.HasDocumentation)
+                return false;
+            return true;
         }
     }
 }
