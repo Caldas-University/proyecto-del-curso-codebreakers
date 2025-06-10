@@ -1,0 +1,41 @@
+[
+  {
+    "Id": "123e4567-e89b-12d3-a456-426614174000",
+    "Title": "Contrato de Patrocinio General",
+    "Description": "Contrato para patrocinio de eventos corporativos",
+    "Value": 50000.00,
+    "StartDate": "2024-01-01T00:00:00Z",
+    "EndDate": "2024-12-31T23:59:59Z",
+    "Status": 3,
+    "SponsorId": "sponsor-001",
+    "EventId": "event-001",
+    "CreatedAt": "2024-01-01T10:00:00Z",
+    "UpdatedAt": null
+  },
+  {
+    "Id": "123e4567-e89b-12d3-a456-426614174001",
+    "Title": "Contrato de Patrocinio Deportivo",
+    "Description": "Contrato específico para eventos deportivos y competencias",
+    "Value": 75000.00,
+    "StartDate": "2024-06-01T00:00:00Z",
+    "EndDate": "2024-12-31T23:59:59Z",
+    "Status": 2,
+    "SponsorId": "sponsor-002",
+    "EventId": "event-002",
+    "CreatedAt": "2024-05-15T14:30:00Z",
+    "UpdatedAt": null
+  },
+  {
+    "Id": "123e4567-e89b-12d3-a456-426614174002",
+    "Title": "Contrato Cancelado",
+    "Description": "Contrato de ejemplo cancelado para pruebas",
+    "Value": 25000.00,
+    "StartDate": "2024-03-01T00:00:00Z",
+    "EndDate": "2024-06-30T23:59:59Z",
+    "Status": 5,
+    "SponsorId": "sponsor-003",
+    "EventId": "event-003",
+    "CreatedAt": "2024-02-15T09:00:00Z",
+    "UpdatedAt": null
+  }
+]

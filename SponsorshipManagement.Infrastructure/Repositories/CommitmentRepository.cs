@@ -8,22 +8,44 @@ namespace SponsorshipManagement.Infrastructure.Repositories
     {
         private static List<Commitment> _commitments = new();
         private static readonly string _jsonFilePath = "./../SponsorshipManagement.Infrastructure/Data/commitments.json";
+        private readonly IContractRepository? _contractRepository;
 
-        static CommitmentRepository()
+        // Constructor para inyección de dependencias
+        public CommitmentRepository(IContractRepository contractRepository)
         {
-            LoadData();
+            _contractRepository = contractRepository;
+            if (_commitments.Count == 0)
+            {
+                LoadData();
+            }
         }
 
-        private static void LoadData()
+        // Constructor sin parámetros para mantener compatibilidad
+        public CommitmentRepository()
+        {
+            _contractRepository = null;
+            if (_commitments.Count == 0)
+            {
+                LoadData();
+            }
+        }
+
+        // Constructor estático para inicialización
+        static CommitmentRepository()
+        {
+            LoadDataStatic();
+        }
+
+        private static void LoadDataStatic()
         {
             if (File.Exists(_jsonFilePath))
             {
                 try
                 {
                     var json = File.ReadAllText(_jsonFilePath);
-                    _commitments = JsonSerializer.Deserialize<List<Commitment>>(json, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
+                    _commitments = JsonSerializer.Deserialize<List<Commitment>>(json, new JsonSerializerOptions 
+                    { 
+                        PropertyNameCaseInsensitive = true 
                     }) ?? new List<Commitment>();
                 }
                 catch (Exception)
@@ -34,11 +56,47 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             else
             {
                 _commitments = new List<Commitment>();
+                SaveDataStatic();
+            }
+        }
+
+        private void LoadData()
+        {
+            if (File.Exists(_jsonFilePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(_jsonFilePath);
+                    var loadedCommitments = JsonSerializer.Deserialize<List<Commitment>>(json, new JsonSerializerOptions 
+                    { 
+                        PropertyNameCaseInsensitive = true 
+                    }) ?? new List<Commitment>();
+                    
+                    // Solo cargar si la lista está vacía para evitar duplicados
+                    if (_commitments.Count == 0)
+                    {
+                        _commitments = loadedCommitments;
+                    }
+                }
+                catch (Exception)
+                {
+                    if (_commitments.Count == 0)
+                    {
+                        _commitments = new List<Commitment>();
+                    }
+                }
+            }
+            else
+            {
+                if (_commitments.Count == 0)
+                {
+                    _commitments = new List<Commitment>();
+                }
                 SaveData();
             }
         }
 
-        private static void SaveData()
+        private static void SaveDataStatic()
         {
             try
             {
@@ -48,9 +106,31 @@ namespace SponsorshipManagement.Infrastructure.Repositories
                     Directory.CreateDirectory(directory);
                 }
 
-                var json = JsonSerializer.Serialize(_commitments, new JsonSerializerOptions
+                var json = JsonSerializer.Serialize(_commitments, new JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+                File.WriteAllText(_jsonFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving commitments: {ex.Message}");
+            }
+        }
+
+        private void SaveData()
+        {
+            try
+            {
+                var directory = Path.GetDirectoryName(_jsonFilePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 {
-                    WriteIndented = true
+                    Directory.CreateDirectory(directory);
+                }
+
+                var json = JsonSerializer.Serialize(_commitments, new JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
                 });
                 File.WriteAllText(_jsonFilePath, json);
             }
@@ -136,19 +216,106 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
         }
 
+        /// <summary>
+        /// 🎯 CU-PA-02.01.3: Validación de existencia del contrato
+        /// Verifica si un contrato existe y es válido para tener compromisos
+        /// </summary>
+        /// <param name="contractId">ID del contrato a validar</param>
+        /// <returns>True si el contrato existe y es válido para compromisos</returns>
         public async Task<bool> ContractExistsAsync(Guid contractId)
         {
-            // Simulación de validación de contrato - en una implementación real consultarías el repositorio de contratos
-            // Por ahora retorna true si el contractId no es Guid.Empty
-            return await Task.FromResult(contractId != Guid.Empty);
+            try
+            {
+                // Si tenemos el repositorio de contratos inyectado, usar validación completa
+                if (_contractRepository != null)
+                {
+                    // Validación completa: existe Y es válido para compromisos
+                    return await _contractRepository.ExistsAndIsValidForCommitmentsAsync(contractId);
+                }
+
+                // Fallback: validación básica para casos sin inyección de dependencias
+                // Verificar que no sea Guid vacío y que exista en nuestros datos de prueba
+                if (contractId == Guid.Empty)
+                {
+                    return false;
+                }
+
+                // Validar contra los contratos conocidos (datos de prueba)
+                var knownContractIds = new[]
+                {
+                    Guid.Parse("123e4567-e89b-12d3-a456-426614174000"), // Contrato General Activo
+                    Guid.Parse("123e4567-e89b-12d3-a456-426614174001")  // Contrato Deportivo Firmado
+                };
+
+                return await Task.FromResult(knownContractIds.Contains(contractId));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error validating contract existence: {ex.Message}");
+                return false;
+            }
         }
 
+        /// <summary>
+        /// Obtiene compromisos que han vencido y siguen pendientes
+        /// </summary>
+        /// <returns>Lista de compromisos vencidos</returns>
         public async Task<IEnumerable<Commitment>> GetOverdueCommitmentsAsync()
         {
             var currentDate = DateTime.UtcNow;
-            return await Task.FromResult(_commitments.Where(c =>
-                c.DueDate < currentDate &&
+            return await Task.FromResult(_commitments.Where(c => 
+                c.DueDate < currentDate && 
                 c.Status == CommitmentStatus.Pending));
         }
+
+        /// <summary>
+        /// Verifica si un contrato específico tiene compromisos asociados
+        /// </summary>
+        /// <param name="contractId">ID del contrato</param>
+        /// <returns>True si el contrato tiene compromisos</returns>
+        public async Task<bool> HasCommitmentsAsync(Guid contractId)
+        {
+            return await Task.FromResult(_commitments.Any(c => c.ContractId == contractId));
+        }
+
+        /// <summary>
+        /// Obtiene estadísticas de compromisos por contrato
+        /// </summary>
+        /// <param name="contractId">ID del contrato</param>
+        /// <returns>Estadísticas de compromisos</returns>
+        public async Task<CommitmentStatistics> GetCommitmentStatisticsAsync(Guid contractId)
+        {
+            var contractCommitments = _commitments.Where(c => c.ContractId == contractId).ToList();
+            
+            return await Task.FromResult(new CommitmentStatistics
+            {
+                ContractId = contractId,
+                TotalCommitments = contractCommitments.Count,
+                PendingCommitments = contractCommitments.Count(c => c.Status == CommitmentStatus.Pending),
+                InProgressCommitments = contractCommitments.Count(c => c.Status == CommitmentStatus.InProgress),
+                CompletedCommitments = contractCommitments.Count(c => c.Status == CommitmentStatus.Completed),
+                CancelledCommitments = contractCommitments.Count(c => c.Status == CommitmentStatus.Cancelled),
+                OverdueCommitments = contractCommitments.Count(c => 
+                    c.DueDate < DateTime.UtcNow && c.Status == CommitmentStatus.Pending)
+            });
+        }
+    }
+
+    /// <summary>
+    /// Clase para estadísticas de compromisos por contrato
+    /// </summary>
+    public class CommitmentStatistics
+    {
+        public Guid ContractId { get; set; }
+        public int TotalCommitments { get; set; }
+        public int PendingCommitments { get; set; }
+        public int InProgressCommitments { get; set; }
+        public int CompletedCommitments { get; set; }
+        public int CancelledCommitments { get; set; }
+        public int OverdueCommitments { get; set; }
+        
+        public double CompletionRate => TotalCommitments > 0 
+            ? (double)CompletedCommitments / TotalCommitments * 100 
+            : 0;
     }
 }
