@@ -10,6 +10,14 @@ builder.Services.AddScoped<ISponsorService, SponsorService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
 
+// Registrar repositorios de beneficios publicitarios
+builder.Services.AddScoped<IAdvertisingBenefitRepository, AdvertisingBenefitRepository>();
+builder.Services.AddScoped<IAdvertisingBenefitExecutionRepository, AdvertisingBenefitExecutionRepository>();
+
+// Registrar servicios de beneficios publicitarios
+builder.Services.AddScoped<IAdvertisingBenefitService, AdvertisingBenefitService>();
+builder.Services.AddScoped<IAdvertisingBenefitExecutionService, AdvertisingBenefitExecutionService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
