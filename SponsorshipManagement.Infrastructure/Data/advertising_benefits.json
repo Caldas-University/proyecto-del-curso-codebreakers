@@ -2,7 +2,7 @@
   {
     "Id": "f1e2d3c4-5678-9abc-def0-123456789abc",
     "Name": "Logo en Banner Principal",
-    "Description": "Colocación del logo del patrocinador en el banner principal del evento",
+    "Description": "Colocaci\u00F3n del logo del patrocinador en el banner principal del evento",
     "BenefitType": "Logo",
     "EstimatedValue": 5000.00,
     "IsActive": true,
@@ -10,8 +10,8 @@
   },
   {
     "Id": "a2b3c4d5-6789-abcd-ef01-234567890bcd",
-    "Name": "Mención en Redes Sociales",
-    "Description": "Mención del patrocinador en todas las publicaciones de redes sociales del evento",
+    "Name": "Menci\u00F3n en Redes Sociales",
+    "Description": "Menci\u00F3n del patrocinador en todas las publicaciones de redes sociales del evento",
     "BenefitType": "Mencion",
     "EstimatedValue": 2000.00,
     "IsActive": true,
@@ -20,7 +20,7 @@
   {
     "Id": "b3c4d5e6-789a-bcde-f012-34567890cdef",
     "Name": "Stand Promocional",
-    "Description": "Espacio físico para stand promocional del patrocinador",
+    "Description": "Espacio f\u00EDsico para stand promocional del patrocinador",
     "BenefitType": "Stand",
     "EstimatedValue": 8000.00,
     "IsActive": true,

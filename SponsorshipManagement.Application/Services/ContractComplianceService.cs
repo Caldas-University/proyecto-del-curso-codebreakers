@@ -28,7 +28,7 @@ namespace SponsorshipManagement.Application.Services
                 throw new ArgumentException($"Contrato con ID {contractId} no encontrado");
 
             var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
-            var report = await GenerateComplianceReport(contract, commitments.ToList());
+            var report = GenerateComplianceReport(contract, commitments.ToList());
             
             return MapReportToDto(report);
         }
@@ -40,7 +40,7 @@ namespace SponsorshipManagement.Application.Services
                 throw new ArgumentException($"Contrato con ID {contractId} no encontrado");
 
             var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
-            var report = await GenerateComplianceReport(contract, commitments.ToList());
+            var report = GenerateComplianceReport(contract, commitments.ToList());
             report.CreatedBy = createdBy;
 
             var savedReport = await _reportRepository.CreateAsync(report);
@@ -101,13 +101,15 @@ namespace SponsorshipManagement.Application.Services
             return true;
         }
 
-        public async Task<string> GetRecommendationsAsync(Guid contractId)
+        public Task<string> GetRecommendationsAsync(Guid contractId)
         {
-            var report = await ValidateContractComplianceAsync(contractId);
-            return GenerateRecommendations(report);
+            var reportTask = ValidateContractComplianceAsync(contractId);
+            // Esperar el resultado de la tarea (sincrónicamente, ya que no hay await real)
+            var report = reportTask.GetAwaiter().GetResult();
+            return Task.FromResult(GenerateRecommendations(report));
         }
 
-        private async Task<ContractComplianceReport> GenerateComplianceReport(Contract contract, List<ContractCommitment> commitments)
+        private ContractComplianceReport GenerateComplianceReport(Contract contract, List<ContractCommitment> commitments)
         {
             var report = new ContractComplianceReport
             {

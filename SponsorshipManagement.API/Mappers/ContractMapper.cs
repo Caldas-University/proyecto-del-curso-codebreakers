@@ -10,7 +10,7 @@ namespace SponsorshipManagement.API.Mappers
         {
             return new ContractDto
             {
-                Id = contract.Id.ToString(),
+                Id = contract.Id,
                 Title = contract.Title,
                 Description = contract.Description,
                 Value = contract.Value,
@@ -20,7 +20,8 @@ namespace SponsorshipManagement.API.Mappers
                 SponsorId = contract.SponsorId,
                 EventId = contract.EventId,
                 CreatedAt = contract.CreatedAt,
-                UpdatedAt = contract.UpdatedAt
+                UpdatedAt = contract.UpdatedAt,
+                IsActive = contract.IsActive()
             };
         }
 
@@ -28,7 +29,7 @@ namespace SponsorshipManagement.API.Mappers
         {
             return new Contract
             {
-                Id = Guid.TryParse(dto.Id, out var guid) ? guid : Guid.NewGuid(),
+                Id = dto.Id != Guid.Empty ? dto.Id : Guid.NewGuid(),
                 Title = dto.Title,
                 Description = dto.Description,
                 Value = dto.Value,

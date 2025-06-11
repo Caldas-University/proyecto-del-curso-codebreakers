@@ -67,9 +67,9 @@ namespace SponsorshipManagement.Application.Services
         }
 
         // Update contract y solo permite editar campos de negocio
-        public Task<ContractDto?> UpdateContractAsync(string id, ContractDto contractDto)
+        public Task<ContractDto?> UpdateContractAsync(Guid id, ContractDto contractDto)
         {
-            var contract = _contracts.FirstOrDefault(c => c.Id.ToString() == id);
+            var contract = _contracts.FirstOrDefault(c => c.Id == id);
             if (contract == null) return Task.FromResult<ContractDto?>(null);
             var previousVersion = JsonSerializer.Serialize(contract);
             // Solo actualizar campos permitidos
@@ -89,9 +89,9 @@ namespace SponsorshipManagement.Application.Services
         }
 
         // Assign benefits to a contract
-        public Task<bool> AssignBenefitsAsync(string contractId, string benefits)
+        public Task<bool> AssignBenefitsAsync(Guid contractId, string benefits)
         {
-            var contract = _contracts.FirstOrDefault(c => c.Id.ToString() == contractId);
+            var contract = _contracts.FirstOrDefault(c => c.Id == contractId);
             if (contract == null) return Task.FromResult(false);
             contract.Description += $" | Benefits: {benefits}";
             contract.UpdatedAt = DateTime.UtcNow;
@@ -105,10 +105,10 @@ namespace SponsorshipManagement.Application.Services
             return Task.FromResult(_contracts.Where(c => c.EventId == eventId).Sum(c => c.Value));
         }
 
-        public ContractService(IContractRepository contractRepository)
+        public ContractService(IContractRepository contractRepository, IEventService eventService)
         {
             _contractRepository = contractRepository;
-            _eventService = null;
+            _eventService = eventService;
         }
 
         public async Task<ContractDto?> GetContractByIdAsync(Guid id)

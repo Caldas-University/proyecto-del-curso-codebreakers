@@ -63,12 +63,4 @@ namespace SponsorshipManagement.Domain.Entities
         Critical = 3
     }
 
-    public enum CommitmentStatus
-    {
-        Pending = 0,
-        InProgress = 1,
-        Completed = 2,
-        Overdue = 3,
-        Cancelled = 4
-    }
 }

@@ -8,9 +8,9 @@ namespace SponsorshipManagement.Application.Interfaces
     {
         Task<IEnumerable<ContractDto>> GetAllContractsAsync();
         Task<ContractDto> CreateContractAsync(ContractDto contractDto);
-        Task<ContractDto?> UpdateContractAsync(string id, ContractDto contractDto);
+        Task<ContractDto?> UpdateContractAsync(Guid id, ContractDto contractDto); // Changed string id to Guid id
         Task<ContractDto> UpdateContractAsync(ContractDto contractDto);
-        Task<bool> AssignBenefitsAsync(string contractId, string benefits);
+        Task<bool> AssignBenefitsAsync(Guid contractId, string benefits); // Changed string contractId to Guid contractId
         Task<decimal> CalculateTotalContributionByEventAsync(string eventId);
 
 

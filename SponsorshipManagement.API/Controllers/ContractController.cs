@@ -33,7 +33,7 @@ namespace SponsorshipManagement.API.Controllers
         /// Get contract by id
         /// </summary>
         [HttpGet("by-id/{id}")]
-        public async Task<ActionResult<ContractDto>> GetById(string id)
+        public async Task<ActionResult<ContractDto>> GetById(Guid id)
         {
             var contract = await _contractService.GetContractByIdAsync(id);
             if (contract == null) return NotFound();
@@ -48,7 +48,7 @@ namespace SponsorshipManagement.API.Controllers
         {
             var created = await _contractService.CreateContractAsync(contractDto);
             await _historyService.AddHistoryAsync(new ContractHistoryDto {
-                ContractId = created.Id,
+                ContractId = created.Id.ToString(),
                 Action = "Created",
                 PreviousVersionJson = string.Empty,
                 Timestamp = created.CreatedAt ?? System.DateTime.UtcNow
@@ -60,14 +60,14 @@ namespace SponsorshipManagement.API.Controllers
         /// Update a contract
         /// </summary>
         [HttpPut("update/{id}")]
-        public async Task<ActionResult<ContractDto>> Update(string id, [FromBody] ContractDto contractDto)
+        public async Task<ActionResult<ContractDto>> Update(Guid id, [FromBody] ContractDto contractDto)
         {
             var previous = await _contractService.GetContractByIdAsync(id);
             if (previous == null) return NotFound();
             var previousJson = System.Text.Json.JsonSerializer.Serialize(previous);
             var updated = await _contractService.UpdateContractAsync(id, contractDto);
             await _historyService.AddHistoryAsync(new ContractHistoryDto {
-                ContractId = id,
+                ContractId = id.ToString(),
                 Action = "Updated",
                 PreviousVersionJson = previousJson,
                 Timestamp = updated?.UpdatedAt ?? System.DateTime.UtcNow
@@ -79,7 +79,7 @@ namespace SponsorshipManagement.API.Controllers
         /// Delete a contract
         /// </summary>
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var previous = await _contractService.GetContractByIdAsync(id);
             if (previous == null) return NotFound();
@@ -87,7 +87,7 @@ namespace SponsorshipManagement.API.Controllers
             var deleted = await _contractService.DeleteContractAsync(id);
             if (!deleted) return NotFound();
             await _historyService.AddHistoryAsync(new ContractHistoryDto {
-                ContractId = id,
+                ContractId = id.ToString(),
                 Action = "Deleted",
                 PreviousVersionJson = previousJson,
                 Timestamp = System.DateTime.UtcNow
@@ -99,7 +99,7 @@ namespace SponsorshipManagement.API.Controllers
         /// Assign benefits to a contract
         /// </summary>
         [HttpPost("{id}/assign-benefits")]
-        public async Task<IActionResult> AssignBenefits(string id, [FromBody] string benefits)
+        public async Task<IActionResult> AssignBenefits(Guid id, [FromBody] string benefits)
         {
             var previous = await _contractService.GetContractByIdAsync(id);
             if (previous == null) return NotFound();
@@ -107,7 +107,7 @@ namespace SponsorshipManagement.API.Controllers
             var result = await _contractService.AssignBenefitsAsync(id, benefits);
             if (!result) return NotFound();
             await _historyService.AddHistoryAsync(new ContractHistoryDto {
-                ContractId = id,
+                ContractId = id.ToString(),
                 Action = "BenefitsAssigned",
                 PreviousVersionJson = previousJson,
                 Timestamp = System.DateTime.UtcNow
