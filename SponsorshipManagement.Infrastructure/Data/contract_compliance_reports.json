@@ -1,0 +1,52 @@
+[
+  {
+    "Id": "r1a2b3c4-5678-9abc-def0-111111111111",
+    "ContractId": "a1b2c3d4-5678-9abc-def0-123456789abc",
+    "ReportDate": "2025-06-10T00:00:00Z",
+    "OverallCompliancePercentage": 75.5,
+    "OverallStatus": 1,
+    "TotalCommitments": 3,
+    "CompletedCommitments": 1,
+    "InProgressCommitments": 2,
+    "OverdueCommitments": 0,
+    "CommitmentCompliances": [
+      {
+        "CommitmentId": "c1d2e3f4-5678-9abc-def0-111111111111",
+        "Title": "Alcance en Redes Sociales",
+        "TargetValue": 150000,
+        "CurrentValue": 95000,
+        "CompliancePercentage": 63.3,
+        "Status": 1,
+        "DaysRemaining": 35,
+        "RiskLevel": 1,
+        "ActionRequired": "MEDIO: Revisar y ajustar estrategia"
+      },
+      {
+        "CommitmentId": "d2e3f4a5-6789-abcd-ef01-222222222222",
+        "Title": "Engagement Total",
+        "TargetValue": 8000,
+        "CurrentValue": 8500,
+        "CompliancePercentage": 100.0,
+        "Status": 2,
+        "DaysRemaining": 0,
+        "RiskLevel": 0,
+        "ActionRequired": "Meta completada exitosamente"
+      },
+      {
+        "CommitmentId": "e3f4a5b6-789a-bcde-f012-333333333333",
+        "Title": "Asistencia al Evento",
+        "TargetValue": 1200,
+        "CurrentValue": 350,
+        "CompliancePercentage": 29.2,
+        "Status": 1,
+        "DaysRemaining": 10,
+        "RiskLevel": 2,
+        "ActionRequired": "ALTO: Intensificar esfuerzos esta semana"
+      }
+    ],
+    "Recommendations": "Priorizar compromiso de asistencia al evento; Revisar estrategia de alcance en redes sociales; Considerar recursos adicionales para acelerar el progreso",
+    "RiskLevel": 1,
+    "CreatedAt": "2025-06-10T00:00:00Z",
+    "CreatedBy": "compliance_manager"
+  }
+]

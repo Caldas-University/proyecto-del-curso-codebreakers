@@ -2,6 +2,7 @@ using SponsorshipManagement.Application.Interfaces;
 using SponsorshipManagement.Application.Services;
 using SponsorshipManagement.Domain.Interfaces;
 using SponsorshipManagement.Infrastructure.Repositories;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,15 @@ builder.Services.AddScoped<IMetricService, MetricService>();
 builder.Services.AddScoped<IMetricRecordService, MetricRecordService>();
 builder.Services.AddScoped<IMetricComparisonService, MetricComparisonService>();
 
+// Registrar repositorios de contratos
+builder.Services.AddScoped<IContractRepository, ContractRepository>();
+builder.Services.AddScoped<IContractCommitmentRepository, ContractCommitmentRepository>();
+builder.Services.AddScoped<IContractComplianceReportRepository, ContractComplianceReportRepository>();
+
+// Registrar servicios de contratos
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IContractComplianceService, ContractComplianceService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,3 +51,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
