@@ -106,7 +106,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving contracts: {ex.Message}");
+                // Console.WriteLine($"Error saving contracts: {ex.Message}");
             }
         }
 

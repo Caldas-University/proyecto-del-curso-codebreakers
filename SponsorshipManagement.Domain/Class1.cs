@@ -1,4 +1,4 @@
-﻿namespace SponsorshipManagement.Domain;
+namespace SponsorshipManagement.Domain;
 
 public class Class1
 {

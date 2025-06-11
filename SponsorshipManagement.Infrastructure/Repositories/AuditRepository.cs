@@ -27,29 +27,29 @@ namespace SponsorshipManagement.Infrastructure.Repositories
         {
             try
             {
-                Console.WriteLine($"🔍 AuditRepository.LogAsync iniciado");
-                Console.WriteLine($"🔍 Archivo: {_filePath}");
-                Console.WriteLine($"🔍 Archivo existe: {File.Exists(_filePath)}");
+                // Console.WriteLine($"🔍 AuditRepository.LogAsync iniciado");
+                // Console.WriteLine($"🔍 Archivo: {_filePath}");
+                // Console.WriteLine($"🔍 Archivo existe: {File.Exists(_filePath)}");
                 
                 var logs = await GetAllLogsFromFileAsync();
-                Console.WriteLine($"🔍 Logs existentes leídos: {logs.Count}");
+                // Console.WriteLine($"🔍 Logs existentes leídos: {logs.Count}");
                 
                 logs.Add(auditLog);
-                Console.WriteLine($"🔍 Log agregado. Total ahora: {logs.Count}");
+                // Console.WriteLine($"🔍 Log agregado. Total ahora: {logs.Count}");
                 
                 await SaveLogsToFileAsync(logs);
-                Console.WriteLine($"✅ Logs guardados en archivo");
+                // Console.WriteLine($"✅ Logs guardados en archivo");
                 
                 // VERIFICAR que se guardó
                 var verification = await GetAllLogsFromFileAsync();
-                Console.WriteLine($"🔍 Verificación - Logs en archivo después de guardar: {verification.Count}");
+                // Console.WriteLine($"🔍 Verificación - Logs en archivo después de guardar: {verification.Count}");
                 
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en AuditRepository.LogAsync: {ex.Message}");
-                Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+                // Console.WriteLine($"❌ Error en AuditRepository.LogAsync: {ex.Message}");
+                // Console.WriteLine($"❌ StackTrace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -64,7 +64,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo auditoría por entidad: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo auditoría por entidad: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -79,7 +79,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo auditoría por usuario: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo auditoría por usuario: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -94,7 +94,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo auditoría por fecha: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo auditoría por fecha: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -109,7 +109,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo auditoría por acción: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo auditoría por acción: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -123,7 +123,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo todos los logs de auditoría: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo todos los logs de auditoría: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -143,7 +143,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo auditoría paginada: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo auditoría paginada: {ex.Message}");
                 return (Enumerable.Empty<AuditLog>(), 0);
             }
         }
@@ -160,13 +160,13 @@ namespace SponsorshipManagement.Infrastructure.Repositories
                 await SaveLogsToFileAsync(logs);
                 
                 var removedCount = initialCount - logs.Count;
-                Console.WriteLine($"Limpieza de auditoría: {removedCount} registros eliminados");
+                // Console.WriteLine($"Limpieza de auditoría: {removedCount} registros eliminados");
                 
                 return removedCount;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error limpiando logs antiguos: {ex.Message}");
+                // Console.WriteLine($"Error limpiando logs antiguos: {ex.Message}");
                 return 0;
             }
         }
@@ -190,7 +190,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creando archivo de auditoría: {ex.Message}");
+                // Console.WriteLine($"Error creando archivo de auditoría: {ex.Message}");
             }
         }
 
@@ -214,7 +214,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error leyendo archivo de auditoría: {ex.Message}");
+                // Console.WriteLine($"Error leyendo archivo de auditoría: {ex.Message}");
                 return new List<AuditLog>();
             }
         }
@@ -223,22 +223,22 @@ namespace SponsorshipManagement.Infrastructure.Repositories
         {
             try
             {
-                Console.WriteLine($"🔍 SaveLogsToFileAsync - Guardando {logs.Count} logs en {_filePath}");
+                // Console.WriteLine($"🔍 SaveLogsToFileAsync - Guardando {logs.Count} logs en {_filePath}");
                 
                 var json = JsonSerializer.Serialize(logs, _jsonOptions);
-                Console.WriteLine($"🔍 JSON serializado - Longitud: {json.Length}");
-                Console.WriteLine($"🔍 JSON preview: {json.Substring(0, Math.Min(200, json.Length))}...");
+                // Console.WriteLine($"🔍 JSON serializado - Longitud: {json.Length}");
+                // Console.WriteLine($"🔍 JSON preview: {json.Substring(0, Math.Min(200, json.Length))}...");
                 
                 await File.WriteAllTextAsync(_filePath, json);
-                Console.WriteLine($"✅ Archivo escrito exitosamente");
+                // Console.WriteLine($"✅ Archivo escrito exitosamente");
                 
                 // Verificar que se escribió
                 var fileContent = await File.ReadAllTextAsync(_filePath);
-                Console.WriteLine($"🔍 Contenido del archivo después de escribir - Longitud: {fileContent.Length}");
+                // Console.WriteLine($"🔍 Contenido del archivo después de escribir - Longitud: {fileContent.Length}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en SaveLogsToFileAsync: {ex.Message}");
+                // Console.WriteLine($"❌ Error en SaveLogsToFileAsync: {ex.Message}");
                 throw;
             }
         }

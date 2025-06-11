@@ -31,6 +31,9 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 // SERVICIOS DE NEGOCIO (CommitmentService debe recibir IAuditService)
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
+// CU-PA-02.04.1: Servicio para consultar compromisos
+builder.Services.AddScoped<ICommitmentQueryService, CommitmentQueryService>();
+
 // 📋 CONFIGURACIÓN DE ASP.NET CORE
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -42,22 +45,6 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Sponsorship Management API",
         Version = "v1",
-        Description = @"API para la gestión de patrocinios y compromisos contractuales
-
-🎯 Casos de Uso Implementados:
-• CU-PA-02.01: Registrar compromisos contractuales
-• CU-PA-02.01.1: Crear modelo y repositorio de compromisos  
-• CU-PA-02.01.2: Endpoint para registrar compromisos
-• CU-PA-02.01.3: Validación de existencia del contrato
-• CU-PA-02.01.4: Asignación de estado inicial 'pendiente'
-
-📋 Endpoints Principales:
-• POST /api/Commitment - Registrar nuevo compromiso
-• GET /api/Commitment - Obtener todos los compromisos
-• GET /api/Commitment/{id} - Obtener compromiso por ID
-• GET /api/Commitment/contract/{contractId} - Compromisos por contrato
-• PUT /api/CommitmentState/{id}/status - Cambiar estado de compromiso
-• GET /api/CommitmentState/statistics - Estadísticas de estados",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "CodeBreakers Team",
@@ -133,13 +120,6 @@ app.MapControllers();
 
 // 📝 LOGGING DE INICIO DE APLICACIÓN
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("🚀 Sponsorship Management API iniciada");
-logger.LogInformation("📋 Casos de uso implementados:");
-logger.LogInformation("   - CU-PA-02.01: Registrar compromisos contractuales");
-logger.LogInformation("   - CU-PA-02.01.1: Crear modelo y repositorio de compromisos");
-logger.LogInformation("   - CU-PA-02.01.2: Endpoint para registrar compromisos");  
-logger.LogInformation("   - CU-PA-02.01.3: Validación de existencia del contrato");
-logger.LogInformation("   - CU-PA-02.01.4: Asignación de estado inicial 'pendiente'");
-logger.LogInformation("📱 Swagger UI disponible en: /swagger");
+
 
 app.Run();

@@ -38,11 +38,11 @@ namespace SponsorshipManagement.API.Controllers
             try
             {
                 // Log de entrada para debugging
-                Console.WriteLine($"📥 Recibiendo request para crear compromiso:");
-                Console.WriteLine($"   ContractId: {request?.ContractId}");
-                Console.WriteLine($"   Description: {request?.Description}");
-                Console.WriteLine($"   DueDate: {request?.DueDate}");
-                Console.WriteLine($"   Responsible: {request?.Responsible}");
+                // Console.WriteLine($"📥 Recibiendo request para crear compromiso:");
+                // Console.WriteLine($"   ContractId: {request?.ContractId}");
+                // Console.WriteLine($"   Description: {request?.Description}");
+                // Console.WriteLine($"   DueDate: {request?.DueDate}");
+                // Console.WriteLine($"   Responsible: {request?.Responsible}");
 
                 // Validación de request nulo
                 if (request == null)
@@ -58,7 +58,7 @@ namespace SponsorshipManagement.API.Controllers
                     return StatusCode(500, "Error interno al crear el compromiso");
                 }
 
-                Console.WriteLine($"✅ Compromiso creado exitosamente: {commitment.Id}");
+                // Console.WriteLine($"✅ Compromiso creado exitosamente: {commitment.Id}");
 
                 // Retornar respuesta 201 Created con el recurso creado
                 return CreatedAtAction(
@@ -70,19 +70,19 @@ namespace SponsorshipManagement.API.Controllers
             catch (ArgumentException ex)
             {
                 // A2: Faltan datos obligatorios → Error de validación
-                Console.WriteLine($"❌ Error de validación: {ex.Message}");
+                // Console.WriteLine($"❌ Error de validación: {ex.Message}");
                 return BadRequest($"Error de validación: {ex.Message}");
             }
             catch (InvalidOperationException ex)
             {
                 // A1: El contrato no existe → Conflicto
-                Console.WriteLine($"❌ Error de negocio: {ex.Message}");
+                // Console.WriteLine($"❌ Error de negocio: {ex.Message}");
                 return Conflict($"Error de negocio: {ex.Message}");
             }
             catch (Exception ex)
             {
                 // Error interno no controlado
-                Console.WriteLine($"❌ Error interno: {ex.Message}");
+                // Console.WriteLine($"❌ Error interno: {ex.Message}");
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }

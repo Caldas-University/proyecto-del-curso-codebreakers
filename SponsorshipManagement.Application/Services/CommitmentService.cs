@@ -50,7 +50,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo compromiso {id}: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo compromiso {id}: {ex.Message}");
                 return null;
             }
         }
@@ -75,7 +75,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo compromisos del contrato {contractId}: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo compromisos del contrato {contractId}: {ex.Message}");
                 return Enumerable.Empty<CommitmentDto>();
             }
         }
@@ -100,7 +100,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo compromisos: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo compromisos: {ex.Message}");
                 return Enumerable.Empty<CommitmentDto>();
             }
         }
@@ -112,7 +112,7 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine($"📊 Obteniendo estadísticas para contrato {contractId}");
+                // Console.WriteLine($"📊 Obteniendo estadísticas para contrato {contractId}");
 
                 var commitments = await _commitmentRepository.GetByContractIdAsync(contractId);
                 var commitmentsList = commitments.ToList();
@@ -134,7 +134,7 @@ namespace SponsorshipManagement.Application.Services
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"⚠️ No se pudo obtener información del contrato: {ex.Message}");
+                        // Console.WriteLine($"⚠️ No se pudo obtener información del contrato: {ex.Message}");
                     }
                 }
 
@@ -162,12 +162,12 @@ namespace SponsorshipManagement.Application.Services
                     stats.OverdueRate = Math.Round((double)stats.OverdueCommitments / stats.TotalCommitments * 100, 2);
                 }
 
-                Console.WriteLine($"✅ Estadísticas generadas: {stats.TotalCommitments} compromisos, {stats.CompletionRate}% completados");
+                // Console.WriteLine($"✅ Estadísticas generadas: {stats.TotalCommitments} compromisos, {stats.CompletionRate}% completados");
                 return stats;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al obtener estadísticas para contrato {contractId}: {ex.Message}");
+                // Console.WriteLine($"❌ Error al obtener estadísticas para contrato {contractId}: {ex.Message}");
                 return new CommitmentStatisticsDto 
                 { 
                     ContractId = contractId.ToString(),
@@ -182,11 +182,11 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine($"📥 Recibiendo request para crear compromiso:");
-                Console.WriteLine($"   ContractId: {createCommitmentRequest.ContractId}");
-                Console.WriteLine($"   Description: {createCommitmentRequest.Description}");
-                Console.WriteLine($"   DueDate: {createCommitmentRequest.DueDate}");
-                Console.WriteLine($"   Responsible: {createCommitmentRequest.Responsible}");
+                // Console.WriteLine($"📥 Recibiendo request para crear compromiso:");
+                // Console.WriteLine($"   ContractId: {createCommitmentRequest.ContractId}");
+                // Console.WriteLine($"   Description: {createCommitmentRequest.Description}");
+                // Console.WriteLine($"   DueDate: {createCommitmentRequest.DueDate}");
+                // Console.WriteLine($"   Responsible: {createCommitmentRequest.Responsible}");
 
                 // VALIDACIÓN Y CREACIÓN DEL COMPROMISO
                 // PASO 1-3: Validaciones existentes
@@ -210,7 +210,7 @@ namespace SponsorshipManagement.Application.Services
                     createCommitmentRequest.Responsible.Trim()
                 );
 
-                Console.WriteLine($"🎯 CU-PA-02.01.4: Compromiso creado con estado inicial: {commitment.Status}");
+                // Console.WriteLine($"🎯 CU-PA-02.01.4: Compromiso creado con estado inicial: {commitment.Status}");
 
                 // PASO 5: Almacenar en repositorio
                 var success = await _commitmentRepository.AddAsync(commitment);
@@ -222,25 +222,25 @@ namespace SponsorshipManagement.Application.Services
                 // CU-PA-02.01.5: Registrar auditoría de creación
                 if (_auditService != null)
                 {
-                    Console.WriteLine($"🔍 Llamando a AuditService.LogCommitmentCreationAsync...");
+                    // Console.WriteLine($"🔍 Llamando a AuditService.LogCommitmentCreationAsync...");
                     var auditResult = await _auditService.LogCommitmentCreationAsync(commitment);
-                    Console.WriteLine($"📝 Resultado de auditoría: {auditResult}");
+                    // Console.WriteLine($"📝 Resultado de auditoría: {auditResult}");
                 }
                 else
                 {
-                    Console.WriteLine("❌ AuditService NO disponible - No se registrará auditoría");
+                    // Console.WriteLine("❌ AuditService NO disponible - No se registrará auditoría");
                 }
 
                 // STATE SERVICE
                 if (_stateService != null)
                 {
-                    Console.WriteLine($"🎯 CU-PA-02.01.4: Inicializando estado para compromiso {commitment.Id}");
+                    // Console.WriteLine($"🎯 CU-PA-02.01.4: Inicializando estado para compromiso {commitment.Id}");
                     await _stateService.InitializeCommitmentStateAsync(commitment.Id);
-                    Console.WriteLine($"✅ CU-PA-02.01.4: Compromiso {commitment.Id} confirmado en estado {commitment.Status}");
+                    // Console.WriteLine($"✅ CU-PA-02.01.4: Compromiso {commitment.Id} confirmado en estado {commitment.Status}");
                 }
 
-                Console.WriteLine($"✅ Compromiso {commitment.Id} creado exitosamente en estado {commitment.Status}");
-                Console.WriteLine($"✅ Compromiso creado exitosamente: {commitment.Id}");
+                // Console.WriteLine($"✅ Compromiso {commitment.Id} creado exitosamente en estado {commitment.Status}");
+                // Console.WriteLine($"✅ Compromiso creado exitosamente: {commitment.Id}");
 
                 // ✅ RETORNAR CommitmentDto EN LUGAR DE Guid
                 return new CommitmentDto
@@ -258,7 +258,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error creando compromiso: {ex.Message}");
+                // Console.WriteLine($"❌ Error creando compromiso: {ex.Message}");
                 throw;
             }
         }
@@ -325,7 +325,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al eliminar compromiso {id}: {ex.Message}");
+                // Console.WriteLine($"❌ Error al eliminar compromiso {id}: {ex.Message}");
                 return false;
             }
         }
@@ -350,7 +350,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error al obtener compromisos vencidos: {ex.Message}");
+                // Console.WriteLine($"❌ Error al obtener compromisos vencidos: {ex.Message}");
                 return Enumerable.Empty<CommitmentDto>();
             }
         }
@@ -405,11 +405,11 @@ namespace SponsorshipManagement.Application.Services
             if (errors.Any())
             {
                 var errorMessage = $"Faltan datos obligatorios o son inválidos: {string.Join(", ", errors)}";
-                Console.WriteLine($"❌ Validación fallida: {errorMessage}");
+                // Console.WriteLine($"❌ Validación fallida: {errorMessage}");
                 throw new ArgumentException(errorMessage);
             }
 
-            Console.WriteLine("✅ Validación de datos exitosa");
+            // Console.WriteLine("✅ Validación de datos exitosa");
             await Task.CompletedTask;
         }
 
@@ -417,7 +417,7 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine($"🔍 CU-PA-02.01.3: Validando existencia del contrato {contractId}");
+                // Console.WriteLine($"🔍 CU-PA-02.01.3: Validando existencia del contrato {contractId}");
 
                 if (_contractValidationService != null)
                 {
@@ -425,28 +425,28 @@ namespace SponsorshipManagement.Application.Services
                     
                     if (!validationResult.IsValid)
                     {
-                        Console.WriteLine($"❌ A1 - Contrato inválido: {validationResult.ErrorMessage}");
+                        // Console.WriteLine($"❌ A1 - Contrato inválido: {validationResult.ErrorMessage}");
                         throw new InvalidOperationException(
                             validationResult.ErrorMessage ?? "El contrato no es válido para crear compromisos"
                         );
                     }
 
-                    Console.WriteLine($"✅ CU-PA-02.01.3: Contrato {contractId} validado exitosamente");
+                    // Console.WriteLine($"✅ CU-PA-02.01.3: Contrato {contractId} validado exitosamente");
                 }
                 else
                 {
-                    Console.WriteLine("⚠️ Usando validación básica (fallback)");
+                    // Console.WriteLine("⚠️ Usando validación básica (fallback)");
                     var contractExists = await _commitmentRepository.ContractExistsAsync(contractId);
                     
                     if (!contractExists)
                     {
-                        Console.WriteLine($"❌ A1 - Contrato no encontrado: {contractId}");
+                        // Console.WriteLine($"❌ A1 - Contrato no encontrado: {contractId}");
                         throw new InvalidOperationException(
                             "El contrato especificado no existe o no está disponible para compromisos"
                         );
                     }
 
-                    Console.WriteLine($"✅ Contrato {contractId} validado (validación básica)");
+                    // Console.WriteLine($"✅ Contrato {contractId} validado (validación básica)");
                 }
             }
             catch (InvalidOperationException)
@@ -455,7 +455,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error inesperado en CU-PA-02.01.3: {ex.Message}");
+                // Console.WriteLine($"❌ Error inesperado en CU-PA-02.01.3: {ex.Message}");
                 throw new InvalidOperationException(
                     $"Error al validar la existencia del contrato: {ex.Message}", ex
                 );
@@ -470,7 +470,7 @@ namespace SponsorshipManagement.Application.Services
                 var daysDifference = (request.DueDate - DateTime.UtcNow).Days;
                 if (daysDifference <= 7)
                 {
-                    Console.WriteLine($"⚠️ Advertencia: Compromiso con vencimiento en fin de semana ({request.DueDate:yyyy-MM-dd})");
+                    // Console.WriteLine($"⚠️ Advertencia: Compromiso con vencimiento en fin de semana ({request.DueDate:yyyy-MM-dd})");
                 }
             }
 
@@ -481,7 +481,7 @@ namespace SponsorshipManagement.Application.Services
                 
                 if (sameDateCommitments >= 5)
                 {
-                    Console.WriteLine($"⚠️ Advertencia: El contrato {contractId} ya tiene {sameDateCommitments} compromisos para la fecha {request.DueDate:yyyy-MM-dd}");
+                    // Console.WriteLine($"⚠️ Advertencia: El contrato {contractId} ya tiene {sameDateCommitments} compromisos para la fecha {request.DueDate:yyyy-MM-dd}");
                 }
             }
 
@@ -507,13 +507,13 @@ namespace SponsorshipManagement.Application.Services
                     }
                 };
 
-                Console.WriteLine($"📝 AUDIT LOG: {action} - Commitment {commitment.Id} for Contract {commitment.ContractId} at {auditEntry.Timestamp}");
+                // Console.WriteLine($"📝 AUDIT LOG: {action} - Commitment {commitment.Id} for Contract {commitment.ContractId} at {auditEntry.Timestamp}");
                 
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en auditoría: {ex.Message}");
+                // Console.WriteLine($"❌ Error en auditoría: {ex.Message}");
             }
         }
 

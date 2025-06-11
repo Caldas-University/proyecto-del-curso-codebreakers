@@ -29,34 +29,34 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine($"🎯 CU-PA-02.01.4: Inicializando estado para compromiso {commitmentId}");
+                // Console.WriteLine($"🎯 CU-PA-02.01.4: Inicializando estado para compromiso {commitmentId}");
 
                 var commitment = await _commitmentRepository.GetByIdAsync(commitmentId);
                 if (commitment == null)
                 {
-                    Console.WriteLine($"❌ Compromiso {commitmentId} no encontrado");
+                    // Console.WriteLine($"❌ Compromiso {commitmentId} no encontrado");
                     return false;
                 }
 
                 // Verificar que esté en estado Pending (debería estar por defecto)
                 if (commitment.Status != CommitmentStatus.Pending)
                 {
-                    Console.WriteLine($"⚠️ Compromiso {commitmentId} no está en estado Pending. Estado actual: {commitment.Status}");
+                    // Console.WriteLine($"⚠️ Compromiso {commitmentId} no está en estado Pending. Estado actual: {commitment.Status}");
                     
                     // Forzar estado Pending si es necesario (caso excepcional)
                     commitment.Status = CommitmentStatus.Pending;
                     commitment.UpdatedAt = DateTime.UtcNow;
                     
                     await _commitmentRepository.UpdateAsync(commitment);
-                    Console.WriteLine($"🔧 Estado corregido a Pending para compromiso {commitmentId}");
+                    // Console.WriteLine($"🔧 Estado corregido a Pending para compromiso {commitmentId}");
                 }
 
-                Console.WriteLine($"✅ CU-PA-02.01.4: Compromiso {commitmentId} confirmado en estado Pending");
+                // Console.WriteLine($"✅ CU-PA-02.01.4: Compromiso {commitmentId} confirmado en estado Pending");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error inicializando estado del compromiso {commitmentId}: {ex.Message}");
+                // Console.WriteLine($"❌ Error inicializando estado del compromiso {commitmentId}: {ex.Message}");
                 return false;
             }
         }
@@ -71,7 +71,7 @@ namespace SponsorshipManagement.Application.Services
                 var commitment = await _commitmentRepository.GetByIdAsync(commitmentId);
                 if (commitment == null)
                 {
-                    Console.WriteLine($"❌ Compromiso {commitmentId} no encontrado");
+                    // Console.WriteLine($"❌ Compromiso {commitmentId} no encontrado");
                     return false;
                 }
 
@@ -80,7 +80,7 @@ namespace SponsorshipManagement.Application.Services
                 // Validar transición
                 if (!commitment.CanTransitionTo(newStatus))
                 {
-                    Console.WriteLine($"❌ Transición inválida: {currentStatus} → {newStatus}");
+                    // Console.WriteLine($"❌ Transición inválida: {currentStatus} → {newStatus}");
                     return false;
                 }
 
@@ -97,7 +97,7 @@ namespace SponsorshipManagement.Application.Services
                 if (success)
                 {
                     await _commitmentRepository.UpdateAsync(commitment);
-                    Console.WriteLine($"✅ Estado cambiado: {currentStatus} → {newStatus}");
+                    // Console.WriteLine($"✅ Estado cambiado: {currentStatus} → {newStatus}");
                     
                     // Log para auditoría
                     await LogStateChangeAsync(commitmentId, currentStatus, newStatus, reason);
@@ -109,7 +109,7 @@ namespace SponsorshipManagement.Application.Services
                     }
                     else
                     {
-                        Console.WriteLine($"AuditService no disponible. Cambio: {currentStatus} -> {newStatus}");
+                        // Console.WriteLine($"AuditService no disponible. Cambio: {currentStatus} -> {newStatus}");
                     }
                 }
 
@@ -117,7 +117,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error cambiando estado del compromiso {commitmentId}: {ex.Message}");
+                // Console.WriteLine($"❌ Error cambiando estado del compromiso {commitmentId}: {ex.Message}");
                 return false;
             }
         }
@@ -129,7 +129,7 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine("🔍 Procesando compromisos vencidos...");
+                // Console.WriteLine("🔍 Procesando compromisos vencidos...");
 
                 var allCommitments = await _commitmentRepository.GetAllAsync();
                 var pendingCommitments = allCommitments.Where(c => c.Status == CommitmentStatus.Pending);
@@ -145,17 +145,17 @@ namespace SponsorshipManagement.Application.Services
                             await _commitmentRepository.UpdateAsync(commitment);
                             processedCount++;
                             
-                            Console.WriteLine($"⏰ Compromiso {commitment.Id} marcado como vencido");
+                            // Console.WriteLine($"⏰ Compromiso {commitment.Id} marcado como vencido");
                         }
                     }
                 }
 
-                Console.WriteLine($"✅ Procesados {processedCount} compromisos vencidos");
+                // Console.WriteLine($"✅ Procesados {processedCount} compromisos vencidos");
                 return processedCount;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error procesando compromisos vencidos: {ex.Message}");
+                // Console.WriteLine($"❌ Error procesando compromisos vencidos: {ex.Message}");
                 return 0;
             }
         }
@@ -193,7 +193,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo estadísticas: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo estadísticas: {ex.Message}");
                 return new StateStatistics();
             }
         }
@@ -231,14 +231,14 @@ namespace SponsorshipManagement.Application.Services
                     Source = "CU-PA-02.01.4"
                 };
 
-                Console.WriteLine($"📝 STATE_CHANGE_LOG: {fromStatus} → {toStatus} for {commitmentId}");
+                // Console.WriteLine($"📝 STATE_CHANGE_LOG: {fromStatus} → {toStatus} for {commitmentId}");
                 
                 // En implementación real, esto iría a un sistema de auditoría
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error en log de cambio de estado: {ex.Message}");
+                // Console.WriteLine($"❌ Error en log de cambio de estado: {ex.Message}");
             }
         }
     }

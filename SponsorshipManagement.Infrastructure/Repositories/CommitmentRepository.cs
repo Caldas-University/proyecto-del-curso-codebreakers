@@ -114,7 +114,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving commitments: {ex.Message}");
+                // Console.WriteLine($"Error saving commitments: {ex.Message}");
             }
         }
 
@@ -136,7 +136,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving commitments: {ex.Message}");
+                // Console.WriteLine($"Error saving commitments: {ex.Message}");
             }
         }
 
@@ -251,7 +251,7 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error validating contract existence: {ex.Message}");
+                // Console.WriteLine($"Error validating contract existence: {ex.Message}");
                 return false;
             }
         }

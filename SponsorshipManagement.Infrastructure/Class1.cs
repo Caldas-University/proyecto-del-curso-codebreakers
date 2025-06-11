@@ -1,4 +1,4 @@
-﻿namespace SponsorshipManagement.Infrastructure;
+namespace SponsorshipManagement.Infrastructure;
 
 public class Class1
 {

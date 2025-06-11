@@ -44,7 +44,7 @@ namespace SponsorshipManagement.API.Controllers
                     return BadRequest($"Estado inválido: {request.NewStatus}");
                 }
 
-                Console.WriteLine($"🔄 Cambiando estado del compromiso {id} a {newStatus}");
+                // Console.WriteLine($"🔄 Cambiando estado del compromiso {id} a {newStatus}");
 
                 // Validar transición
                 var isValidTransition = await _stateService.ValidateStateTransitionAsync(id, newStatus);
@@ -68,7 +68,7 @@ namespace SponsorshipManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error cambiando estado: {ex.Message}");
+                // Console.WriteLine($"❌ Error cambiando estado: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
@@ -94,7 +94,7 @@ namespace SponsorshipManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error procesando compromisos vencidos: {ex.Message}");
+                // Console.WriteLine($"❌ Error procesando compromisos vencidos: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
@@ -114,7 +114,7 @@ namespace SponsorshipManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo estadísticas: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo estadísticas: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
@@ -140,7 +140,7 @@ namespace SponsorshipManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error obteniendo transiciones válidas: {ex.Message}");
+                // Console.WriteLine($"❌ Error obteniendo transiciones válidas: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }

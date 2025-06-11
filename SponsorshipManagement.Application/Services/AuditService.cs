@@ -25,7 +25,7 @@ namespace SponsorshipManagement.Application.Services
         {
             try
             {
-                Console.WriteLine($"🔍 AuditService.LogCommitmentCreationAsync llamado para compromiso {commitment.Id}");
+                // Console.WriteLine($"🔍 AuditService.LogCommitmentCreationAsync llamado para compromiso {commitment.Id}");
                 
                 var auditLog = new AuditLog(
                     AuditEntityTypes.COMMITMENT,
@@ -52,26 +52,26 @@ namespace SponsorshipManagement.Application.Services
                 auditLog.NewValues = JsonSerializer.Serialize(newValues);
                 auditLog.Source = "CU-PA-02.01.5";
 
-                Console.WriteLine($"🔍 Llamando a _auditRepository.LogAsync...");
+                // Console.WriteLine($"🔍 Llamando a _auditRepository.LogAsync...");
                 var success = await _auditRepository.LogAsync(auditLog);
                 
-                Console.WriteLine($"🔍 Resultado del repositorio: {success}");
+                // Console.WriteLine($"🔍 Resultado del repositorio: {success}");
                 
                 if (success)
                 {
-                    Console.WriteLine($"✅ CU-PA-02.01.5: Auditoría registrada para compromiso {commitment.Id}");
+                    // Console.WriteLine($"✅ CU-PA-02.01.5: Auditoría registrada para compromiso {commitment.Id}");
                 }
                 else
                 {
-                    Console.WriteLine($"❌ Error registrando auditoría para compromiso {commitment.Id}");
+                    // Console.WriteLine($"❌ Error registrando auditoría para compromiso {commitment.Id}");
                 }
                 
                 return success;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Excepción en AuditService.LogCommitmentCreationAsync: {ex.Message}");
-                Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+                // Console.WriteLine($"❌ Excepción en AuditService.LogCommitmentCreationAsync: {ex.Message}");
+                // Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -102,7 +102,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error registrando auditoría de actualización: {ex.Message}");
+                // Console.WriteLine($"Error registrando auditoría de actualización: {ex.Message}");
                 return false;
             }
         }
@@ -136,7 +136,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error registrando auditoría de cambio de estado: {ex.Message}");
+                // Console.WriteLine($"Error registrando auditoría de cambio de estado: {ex.Message}");
                 return false;
             }
         }
@@ -177,7 +177,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error registrando auditoría de eliminación: {ex.Message}");
+                // Console.WriteLine($"Error registrando auditoría de eliminación: {ex.Message}");
                 return false;
             }
         }
@@ -193,7 +193,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo historial de auditoría: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo historial de auditoría: {ex.Message}");
                 return Enumerable.Empty<AuditLog>();
             }
         }
@@ -222,7 +222,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error obteniendo estadísticas de auditoría: {ex.Message}");
+                // Console.WriteLine($"Error obteniendo estadísticas de auditoría: {ex.Message}");
                 return new AuditStatistics();
             }
         }
@@ -239,7 +239,7 @@ namespace SponsorshipManagement.Application.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error limpiando logs antiguos: {ex.Message}");
+                // Console.WriteLine($"Error limpiando logs antiguos: {ex.Message}");
                 return 0;
             }
         }
