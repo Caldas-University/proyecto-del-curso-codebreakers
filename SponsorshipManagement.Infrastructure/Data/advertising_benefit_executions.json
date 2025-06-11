@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "d4e5f6a7-89ab-cdef-0123-456789abcdef",
+    "SponsorshipContractId": "e1f2a3b4-5678-9abc-def0-123456789abc",
+    "AdvertisingBenefitId": "f1e2d3c4-5678-9abc-def0-123456789abc",
+    "SponsorDocumentNumber": "123456789",
+    "EventId": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "ExecutionDate": "2025-06-15T10:00:00Z",
+    "Status": "Ejecutado",
+    "ExecutionDetails": "Logo colocado en banner principal del evento en Lima",
+    "MediaFiles": "/media/banners/logo_company1_lima_event.jpg",
+    "ActualCost": 4800.00,
+    "ExecutedBy": "marketing_team",
+    "CreatedDate": "2025-06-01T00:00:00Z",
+    "CompletedDate": "2025-06-15T10:30:00Z",
+    "Notes": "Ejecuci\u00F3n exitosa, logo visible durante todo el evento"
+  },
+  {
+    "Id": "e5f6a7b8-9abc-def0-1234-56789abcdef0",
+    "SponsorshipContractId": "f2a3b4c5-6789-abcd-ef01-234567890bcd",
+    "AdvertisingBenefitId": "a2b3c4d5-6789-abcd-ef01-234567890bcd",
+    "SponsorDocumentNumber": "987654321",
+    "EventId": "c2b8f3f2-2d3e-4f4c-9b8c-2345678901bc",
+    "ExecutionDate": "2025-06-20T14:00:00Z",
+    "Status": "Pendiente",
+    "ExecutionDetails": "Programada menci\u00F3n en redes sociales para evento en Arequipa",
+    "MediaFiles": "",
+    "ActualCost": 0.00,
+    "ExecutedBy": "social_media_manager",
+    "CreatedDate": "2025-06-10T00:00:00Z",
+    "CompletedDate": null,
+    "Notes": "Pendiente de aprobaci\u00F3n del contenido por parte del patrocinador"
+  },
+  {
+    "Id": "9e4938ab-2a68-4fa5-ac33-cd26b12e9aa5",
+    "SponsorshipContractId": "e1f2a3b4-5678-9abc-def0-123456789abc",
+    "AdvertisingBenefitId": "f1e2d3c4-5678-9abc-def0-123456789abc",
+    "SponsorDocumentNumber": "123456789",
+    "EventId": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "ExecutionDate": "2025-07-15T14:00:00Z",
+    "Status": "Pendiente",
+    "ExecutionDetails": "Programada colocaci\u00F3n de logo en banner principal",
+    "MediaFiles": "",
+    "ActualCost": 0.00,
+    "ExecutedBy": "marketing_coordinator",
+    "CreatedDate": "2025-06-11T04:31:57.7040928Z",
+    "CompletedDate": null,
+    "Notes": "Revisar dise\u00F1o antes de la ejecuci\u00F3n"
+  }
+]
