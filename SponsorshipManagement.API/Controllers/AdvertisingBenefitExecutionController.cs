@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SponsorshipManagement.Application.Dtos;
+using SponsorshipManagement.Application.DTOs;
 using SponsorshipManagement.Application.Interfaces;
 
 namespace SponsorshipManagement.API.Controllers
@@ -158,6 +159,19 @@ namespace SponsorshipManagement.API.Controllers
                 return NoContent();
             
             return BadRequest("No se pudo eliminar la ejecución");
+        }
+
+        /// <summary>
+        /// Obtiene el reporte de visibilidad
+        /// </summary>
+        /// <param name="sponsorDocument">Número de documento del patrocinador (opcional)</param>
+        /// <param name="eventId">ID del evento (opcional)</param>
+        /// <returns>Reporte de visibilidad</returns>
+        [HttpGet("visibility-report")]
+        public async Task<ActionResult<IEnumerable<VisibilityReportDto>>> GetVisibilityReport([FromQuery] string? sponsorDocument, [FromQuery] string? eventId)
+        {
+            var report = await _executionService.GetVisibilityReportAsync(sponsorDocument, eventId);
+            return Ok(report);
         }
     }
 }
