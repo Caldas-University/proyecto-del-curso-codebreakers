@@ -7,5 +7,7 @@ namespace SponsorshipManagement.Application.Interfaces
     {
         IEnumerable<EventDto> ListEvents();
         IEnumerable<EventDto> FilterEvents(string place = null!, decimal? fundMin = null, int? capacityMin = null);
+        EventDto? GetEventById(string id);
+        void UpdateEvent(EventDto updatedEvent);
     }
 }

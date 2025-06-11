@@ -15,7 +15,7 @@
   {
     "Id": "123e4567-e89b-12d3-a456-426614174001",
     "Title": "Contrato de Patrocinio Deportivo",
-    "Description": "Contrato específico para eventos deportivos y competencias",
+    "Description": "Contrato espec\u00EDfico para eventos deportivos y competencias",
     "Value": 75000.00,
     "StartDate": "2024-06-01T00:00:00Z",
     "EndDate": "2024-12-31T23:59:59Z",
@@ -37,5 +37,18 @@
     "EventId": "event-003",
     "CreatedAt": "2024-02-15T09:00:00Z",
     "UpdatedAt": null
+  },
+  {
+    "Id": "323c84c6-dd06-4129-b0f9-9d3ffcde9888",
+    "Title": "string",
+    "Description": "ven y sana mi dolor, tienes la cura de este amor, hago este llamado para que tu vengas, que bacano es el autismo y la esquizofrenia, jajajajjaajajjaaj",
+    "Value": 0,
+    "StartDate": "2025-06-11T07:15:27.809Z",
+    "EndDate": "2025-06-11T07:15:27.809Z",
+    "Status": 0,
+    "SponsorId": "string",
+    "EventId": "string",
+    "CreatedAt": "2025-06-11T07:15:34.2610224Z",
+    "UpdatedAt": "2025-06-11T07:17:32.4255282Z"
   }
 ]

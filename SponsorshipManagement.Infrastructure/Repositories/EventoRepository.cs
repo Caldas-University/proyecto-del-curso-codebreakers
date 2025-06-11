@@ -38,5 +38,26 @@ namespace SponsorshipManagement.Infrastructure.Repositories
                 (!capacityMin.HasValue || e.Capacity >= capacityMin)
             );
         }
+
+        public Event? GetEventById(string id)
+        {
+            return _events.FirstOrDefault(e => e.Id.ToString() == id);
+        }
+
+        public void UpdateEvent(Event updatedEvent)
+        {
+            var idx = _events.FindIndex(e => e.Id == updatedEvent.Id);
+            if (idx >= 0)
+            {
+                _events[idx] = updatedEvent;
+                SaveChanges();
+            }
+        }
+
+        private static void SaveChanges()
+        {
+            var json = JsonSerializer.Serialize(_events, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_jsonFilePath, json);
+        }
     }
 }

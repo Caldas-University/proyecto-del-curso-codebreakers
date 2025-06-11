@@ -37,5 +37,30 @@ namespace SponsorshipManagement.Application.Services
                 Sponsors = e.Sponsors
             });
         }
+
+        public EventDto? GetEventById(string id)
+        {
+            var e = _eventRepository.GetEventById(id);
+            if (e == null) return null;
+            return new EventDto {
+                Id = e.Id.ToString(),
+                Place = e.Place,
+                Fund = e.Fund,
+                Capacity = e.Capacity,
+                Sponsors = e.Sponsors
+            };
+        }
+
+        public void UpdateEvent(EventDto updatedEvent)
+        {
+            var entity = new Event {
+                Id = Guid.Parse(updatedEvent.Id),
+                Place = updatedEvent.Place,
+                Fund = updatedEvent.Fund,
+                Capacity = updatedEvent.Capacity,
+                Sponsors = updatedEvent.Sponsors
+            };
+            _eventRepository.UpdateEvent(entity);
+        }
     }
 }
