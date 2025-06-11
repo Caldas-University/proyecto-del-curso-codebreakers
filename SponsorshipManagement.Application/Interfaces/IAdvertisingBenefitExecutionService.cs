@@ -1,4 +1,5 @@
 using SponsorshipManagement.Application.Dtos;
+using SponsorshipManagement.Application.DTOs;
 
 namespace SponsorshipManagement.Application.Interfaces
 {
@@ -15,5 +16,6 @@ namespace SponsorshipManagement.Application.Interfaces
         Task<bool> DeleteExecutionAsync(Guid id);
         Task<bool> ExecutionExistsAsync(Guid id);
         Task<bool> MarkExecutionAsCompletedAsync(Guid id, string completedBy);
+        Task<IEnumerable<VisibilityReportDto>> GetVisibilityReportAsync(string? sponsorDocument = null, string? eventId = null);
     }
 }

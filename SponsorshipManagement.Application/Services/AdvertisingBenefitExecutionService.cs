@@ -1,4 +1,5 @@
 using SponsorshipManagement.Application.Dtos;
+using SponsorshipManagement.Application.DTOs;
 using SponsorshipManagement.Application.Interfaces;
 using SponsorshipManagement.Domain.Entities;
 using SponsorshipManagement.Domain.Interfaces;
@@ -117,6 +118,28 @@ namespace SponsorshipManagement.Application.Services
 
             await _executionRepository.UpdateAsync(execution);
             return true;
+        }
+
+        public async Task<IEnumerable<VisibilityReportDto>> GetVisibilityReportAsync(string? sponsorDocument = null, string? eventId = null)
+        {
+            var executions = await _executionRepository.GetAllAsync();
+            if (!string.IsNullOrEmpty(sponsorDocument))
+                executions = executions.Where(e => e.SponsorDocumentNumber == sponsorDocument);
+            if (!string.IsNullOrEmpty(eventId))
+                executions = executions.Where(e => e.EventId == eventId);
+
+            return executions
+                .GroupBy(e => new { e.SponsorDocumentNumber, e.EventId })
+                .Select(g => new VisibilityReportDto
+                {
+                    SponsorDocumentNumber = g.Key.SponsorDocumentNumber,
+                    EventId = g.Key.EventId,
+                    TotalBenefits = g.Count(),
+                    ExecutedBenefits = g.Count(e => e.Status == "Ejecutado"),
+                    PendingBenefits = g.Count(e => e.Status == "Pendiente"),
+                    CancelledBenefits = g.Count(e => e.Status == "Cancelado"),
+                    TotalEvidences = g.Count(e => !string.IsNullOrEmpty(e.MediaFiles))
+                });
         }
 
         private static AdvertisingBenefitExecutionDto MapToDto(AdvertisingBenefitExecution execution)
