@@ -7,11 +7,18 @@ namespace SponsorshipManagement.Application.Interfaces
     public interface IContractService
     {
         Task<IEnumerable<ContractDto>> GetAllContractsAsync();
-        Task<ContractDto?> GetContractByIdAsync(string id);
         Task<ContractDto> CreateContractAsync(ContractDto contractDto);
         Task<ContractDto?> UpdateContractAsync(string id, ContractDto contractDto);
-        Task<bool> DeleteContractAsync(string id);
+        Task<ContractDto> UpdateContractAsync(ContractDto contractDto);
         Task<bool> AssignBenefitsAsync(string contractId, string benefits);
         Task<decimal> CalculateTotalContributionByEventAsync(string eventId);
+
+
+        Task<ContractDto?> GetContractByIdAsync(Guid id);
+        Task<IEnumerable<ContractDto>> GetContractsBySponsorIdAsync(string sponsorId);
+        Task<IEnumerable<ContractDto>> GetContractsByEventIdAsync(string eventId);
+        Task<IEnumerable<ContractDto>> GetActiveContractsAsync();
+        Task<bool> DeleteContractAsync(Guid id);
+        Task<bool> ContractExistsAsync(Guid id);
     }
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "Id": "a1b2c3d4-5678-9abc-def0-111111111111",
+    "Name": "Alcance en Redes Sociales",
+    "Description": "Número total de personas que vieron el contenido relacionado al patrocinador",
+    "MetricType": "Alcance",
+    "Category": "Social",
+    "Unit": "Personas",
+    "IsActive": true,
+    "CreatedDate": "2025-01-01T00:00:00Z"
+  },
+  {
+    "Id": "b2c3d4e5-6789-abcd-ef01-222222222222",
+    "Name": "Interacciones Totales",
+    "Description": "Número total de likes, comentarios, shares y reacciones",
+    "MetricType": "Interaccion",
+    "Category": "Social",
+    "Unit": "Interacciones",
+    "IsActive": true,
+    "CreatedDate": "2025-01-01T00:00:00Z"
+  },
+  {
+    "Id": "c3d4e5f6-789a-bcde-f012-333333333333",
+    "Name": "Visitas al Sitio Web",
+    "Description": "Número de visitas al sitio web desde enlaces del patrocinador",
+    "MetricType": "Alcance",
+    "Category": "Web",
+    "Unit": "Visitas",
+    "IsActive": true,
+    "CreatedDate": "2025-01-01T00:00:00Z"
+  },
+  {
+    "Id": "d4e5f6a7-89ab-cdef-0123-444444444444",
+    "Name": "Tasa de Engagement",
+    "Description": "Porcentaje de engagement en publicaciones del patrocinador",
+    "MetricType": "Comparativa",
+    "Category": "Social",
+    "Unit": "Porcentaje",
+    "IsActive": true,
+    "CreatedDate": "2025-01-01T00:00:00Z"
+  },
+  {
+    "Id": "e5f6a7b8-9abc-def0-1234-555555555555",
+    "Name": "Asistencia al Evento",
+    "Description": "Número de personas que asistieron al evento",
+    "MetricType": "Alcance",
+    "Category": "Evento",
+    "Unit": "Personas",
+    "IsActive": true,
+    "CreatedDate": "2025-01-01T00:00:00Z"
+  }
+]

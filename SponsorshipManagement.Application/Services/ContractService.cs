@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SponsorshipManagement.Domain.Interfaces;
 
 namespace SponsorshipManagement.Application.Services
 {
@@ -13,7 +14,8 @@ namespace SponsorshipManagement.Application.Services
     {
         private static List<Contract> _contracts;
         private static readonly string _filePath = "./../SponsorshipManagement.Infrastructure/Data/contracts.json";
-        private readonly IEventService _eventService;
+        private readonly IEventService? _eventService;
+        private readonly IContractRepository? _contractRepository;
 
         static ContractService()
         {
@@ -36,14 +38,7 @@ namespace SponsorshipManagement.Application.Services
         // Get all contracts
         public Task<IEnumerable<ContractDto>> GetAllContractsAsync()
         {
-            return Task.FromResult(_contracts.Select(ToDto));
-        }
-
-        // Get contract by id
-        public Task<ContractDto?> GetContractByIdAsync(string id)
-        {
-            var contract = _contracts.FirstOrDefault(c => c.Id.ToString() == id);
-            return Task.FromResult(contract == null ? null : ToDto(contract));
+            return Task.FromResult(_contracts.Select(MapToDto));
         }
 
         // Create a new contract
@@ -68,7 +63,7 @@ namespace SponsorshipManagement.Application.Services
             SaveChanges();
             // Update event fund
             UpdateEventFundForContract(contract.EventId);
-            return Task.FromResult(ToDto(contract));
+            return Task.FromResult(MapToDto(contract));
         }
 
         // Update contract y solo permite editar campos de negocio
@@ -90,17 +85,7 @@ namespace SponsorshipManagement.Application.Services
             SaveChanges();
             // Update event fund
             UpdateEventFundForContract(contract.EventId);
-            return Task.FromResult<ContractDto?>(ToDto(contract));
-        }
-
-        // Delete contract
-        public Task<bool> DeleteContractAsync(string id)
-        {
-            var contract = _contracts.FirstOrDefault(c => c.Id.ToString() == id);
-            if (contract == null) return Task.FromResult(false);
-            _contracts.Remove(contract);
-            SaveChanges();
-            return Task.FromResult(true);
+            return Task.FromResult<ContractDto?>(MapToDto(contract));
         }
 
         // Assign benefits to a contract
@@ -120,12 +105,87 @@ namespace SponsorshipManagement.Application.Services
             return Task.FromResult(_contracts.Where(c => c.EventId == eventId).Sum(c => c.Value));
         }
 
-        // Mapper methods (local, to avoid dependency on API layer)
-        private static ContractDto ToDto(Contract contract)
+        public ContractService(IContractRepository contractRepository)
+        {
+            _contractRepository = contractRepository;
+            _eventService = null;
+        }
+
+        public async Task<ContractDto?> GetContractByIdAsync(Guid id)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var contract = await _contractRepository.GetByIdAsync(id);
+            return contract != null ? MapToDto(contract) : null;
+        }
+
+        public async Task<IEnumerable<ContractDto>> GetContractsBySponsorIdAsync(string sponsorId)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var contracts = await _contractRepository.GetBySponsorIdAsync(sponsorId);
+            return contracts.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ContractDto>> GetContractsByEventIdAsync(string eventId)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var contracts = await _contractRepository.GetByEventIdAsync(eventId);
+            return contracts.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<ContractDto>> GetActiveContractsAsync()
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var contracts = await _contractRepository.GetActiveContractsAsync();
+            return contracts.Select(MapToDto);
+        }
+
+        public async Task<ContractDto> UpdateContractAsync(ContractDto contractDto)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var existingContract = await _contractRepository.GetByIdAsync(contractDto.Id);
+            if (existingContract == null)
+                throw new ArgumentException($"Contrato con ID {contractDto.Id} no encontrado");
+
+            existingContract.Title = contractDto.Title;
+            existingContract.Description = contractDto.Description;
+            existingContract.Value = contractDto.Value;
+            existingContract.StartDate = contractDto.StartDate;
+            existingContract.EndDate = contractDto.EndDate;
+            existingContract.SponsorId = contractDto.SponsorId;
+            existingContract.EventId = contractDto.EventId;
+            
+            if (Enum.TryParse<ContractStatus>(contractDto.Status.ToString(), out var status))
+                existingContract.Status = status;
+
+            var updatedContract = await _contractRepository.UpdateAsync(existingContract);
+            return MapToDto(updatedContract);
+        }
+
+        public async Task<bool> DeleteContractAsync(Guid id)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            return await _contractRepository.DeleteAsync(id);
+        }
+
+        public async Task<bool> ContractExistsAsync(Guid id)
+        {
+            if (_contractRepository == null)
+                throw new InvalidOperationException("_contractRepository is not initialized.");
+            var contract = await _contractRepository.GetByIdAsync(id);
+            return contract != null;
+        }
+
+        private ContractDto MapToDto(Contract contract)
         {
             return new ContractDto
             {
-                Id = contract.Id.ToString(),
+                Id = contract.Id,
                 Title = contract.Title,
                 Description = contract.Description,
                 Value = contract.Value,
@@ -135,14 +195,15 @@ namespace SponsorshipManagement.Application.Services
                 SponsorId = contract.SponsorId,
                 EventId = contract.EventId,
                 CreatedAt = contract.CreatedAt,
-                UpdatedAt = contract.UpdatedAt
+                UpdatedAt = contract.UpdatedAt,
+                IsActive = contract.IsActive()
             };
         }
         private static Contract ToEntity(ContractDto dto)
         {
             return new Contract
             {
-                Id = Guid.TryParse(dto.Id, out var guid) ? guid : Guid.NewGuid(),
+                Id = dto.Id != Guid.Empty ? dto.Id : Guid.NewGuid(),
                 Title = dto.Title,
                 Description = dto.Description,
                 Value = dto.Value,
@@ -165,11 +226,11 @@ namespace SponsorshipManagement.Application.Services
         {
             if (string.IsNullOrEmpty(eventId)) return;
             var total = _contracts.Where(c => c.EventId == eventId).Sum(c => c.Value);
-            var eventDto = _eventService.GetEventById(eventId);
+            var eventDto = _eventService?.GetEventById(eventId);
             if (eventDto != null)
             {
                 eventDto.Fund = total;
-                _eventService.UpdateEvent(eventDto);
+                _eventService?.UpdateEvent(eventDto);
             }
         }
     }

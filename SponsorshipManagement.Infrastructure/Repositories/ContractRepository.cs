@@ -1,6 +1,10 @@
 using SponsorshipManagement.Domain.Entities;
 using SponsorshipManagement.Domain.Interfaces;
 using System.Text.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SponsorshipManagement.Infrastructure.Repositories
 {
@@ -29,63 +33,12 @@ namespace SponsorshipManagement.Infrastructure.Repositories
                 catch (Exception)
                 {
                     _contracts = new List<Contract>();
-                    InitializeWithSampleData();
                 }
             }
             else
             {
                 _contracts = new List<Contract>();
-                InitializeWithSampleData();
             }
-        }
-
-        private static void InitializeWithSampleData()
-        {
-            // Crear contratos de ejemplo que coincidan con los IDs usados en commitments.json
-            _contracts.AddRange(new[]
-            {
-                new Contract
-                {
-                    Id = Guid.Parse("123e4567-e89b-12d3-a456-426614174000"),
-                    Title = "Contrato de Patrocinio General",
-                    Description = "Contrato para patrocinio de eventos corporativos",
-                    Value = 50000.00m,
-                    StartDate = DateTime.Parse("2024-01-01"),
-                    EndDate = DateTime.Parse("2024-12-31"),
-                    Status = ContractStatus.Active,
-                    SponsorId = "sponsor-001",
-                    EventId = "event-001",
-                    CreatedAt = DateTime.Parse("2024-01-01T10:00:00Z")
-                },
-                new Contract
-                {
-                    Id = Guid.Parse("123e4567-e89b-12d3-a456-426614174001"),
-                    Title = "Contrato de Patrocinio Deportivo",
-                    Description = "Contrato específico para eventos deportivos y competencias",
-                    Value = 75000.00m,
-                    StartDate = DateTime.Parse("2024-06-01"),
-                    EndDate = DateTime.Parse("2024-12-31"),
-                    Status = ContractStatus.Signed,
-                    SponsorId = "sponsor-002",
-                    EventId = "event-002",
-                    CreatedAt = DateTime.Parse("2024-05-15T14:30:00Z")
-                },
-                new Contract
-                {
-                    Id = Guid.Parse("123e4567-e89b-12d3-a456-426614174002"),
-                    Title = "Contrato Cancelado",
-                    Description = "Contrato de ejemplo cancelado para pruebas",
-                    Value = 25000.00m,
-                    StartDate = DateTime.Parse("2024-03-01"),
-                    EndDate = DateTime.Parse("2024-06-30"),
-                    Status = ContractStatus.Cancelled,
-                    SponsorId = "sponsor-003",
-                    EventId = "event-003",
-                    CreatedAt = DateTime.Parse("2024-02-15T09:00:00Z")
-                }
-            });
-
-            SaveData();
         }
 
         private static void SaveData()
@@ -110,11 +63,6 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
         }
 
-        public async Task<Contract?> GetByIdAsync(Guid id)
-        {
-            return await Task.FromResult(_contracts.FirstOrDefault(c => c.Id == id));
-        }
-
         public async Task<bool> ExistsAsync(Guid id)
         {
             return await Task.FromResult(_contracts.Any(c => c.Id == id));
@@ -126,14 +74,59 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             return contract != null && contract.CanHaveCommitments();
         }
 
+        private async Task<List<Contract>> LoadContractsAsync()
+        {
+            if (!File.Exists(_jsonFilePath))
+                return new List<Contract>();
+
+            using FileStream fs = File.OpenRead(_jsonFilePath);
+            var contracts = await JsonSerializer.DeserializeAsync<List<Contract>>(fs);
+            return contracts ?? new List<Contract>();
+        }
+
+        private async Task SaveContractsAsync(List<Contract> contracts)
+        {
+            var directory = Path.GetDirectoryName(_jsonFilePath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory!);
+
+            using FileStream fs = File.Create(_jsonFilePath);
+            await JsonSerializer.SerializeAsync(fs, contracts, new JsonSerializerOptions { WriteIndented = true });
+        }
+
         public async Task<IEnumerable<Contract>> GetAllAsync()
         {
             return await Task.FromResult(_contracts.AsEnumerable());
         }
 
+        public async Task<Contract?> GetByIdAsync(Guid id)
+        {
+            var contracts = await LoadContractsAsync();
+            return contracts.FirstOrDefault(c => c.Id == id);
+        }
+
+        public async Task<IEnumerable<Contract>> GetBySponsorIdAsync(string sponsorId)
+        {
+            var contracts = await LoadContractsAsync();
+            return contracts.Where(c => c.SponsorId == sponsorId);
+        }
+
+        public async Task<IEnumerable<Contract>> GetByEventIdAsync(string eventId)
+        {
+            var contracts = await LoadContractsAsync();
+            return contracts.Where(c => c.EventId == eventId);
+        }
+
+        public async Task<IEnumerable<Contract>> GetByStatusAsync(ContractStatus status)
+        {
+            var contracts = await LoadContractsAsync();
+            return contracts.Where(c => c.Status == status);
+        }
+
         public async Task<IEnumerable<Contract>> GetActiveContractsAsync()
         {
-            return await Task.FromResult(_contracts.Where(c => c.IsActive()));
+            var contracts = await LoadContractsAsync();
+            return contracts.Where(c => c.IsActive());
         }
 
         public async Task<bool> AddAsync(Contract contract)
@@ -152,44 +145,38 @@ namespace SponsorshipManagement.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> UpdateAsync(Contract contract)
+        public async Task<Contract> CreateAsync(Contract contract)
         {
-            try
-            {
-                if (contract == null) return false;
+            var contracts = await LoadContractsAsync();
+            contracts.Add(contract);
+            await SaveContractsAsync(contracts);
+            return contract;
+        }
 
-                var existingIndex = _contracts.FindIndex(c => c.Id == contract.Id);
-                if (existingIndex >= 0)
-                {
-                    _contracts[existingIndex] = contract;
-                    SaveData();
-                    return await Task.FromResult(true);
-                }
-                return false;
-            }
-            catch
+        public async Task<Contract> UpdateAsync(Contract contract)
+        {
+            var contracts = await LoadContractsAsync();
+            var index = contracts.FindIndex(c => c.Id == contract.Id);
+            if (index >= 0)
             {
-                return false;
+                contract.UpdatedAt = DateTime.UtcNow;
+                contracts[index] = contract;
+                await SaveContractsAsync(contracts);
             }
+            return contract;
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            try
+            var contracts = await LoadContractsAsync();
+            var contract = contracts.FirstOrDefault(c => c.Id == id);
+            if (contract != null)
             {
-                var contract = _contracts.FirstOrDefault(c => c.Id == id);
-                if (contract != null)
-                {
-                    _contracts.Remove(contract);
-                    SaveData();
-                    return await Task.FromResult(true);
-                }
-                return false;
+                contracts.Remove(contract);
+                await SaveContractsAsync(contracts);
+                return true;
             }
-            catch
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

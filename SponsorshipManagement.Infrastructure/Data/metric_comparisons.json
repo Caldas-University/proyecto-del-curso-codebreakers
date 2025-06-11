@@ -1,0 +1,17 @@
+[
+  {
+    "Id": "c9d0e1f2-def0-1234-5678-111111111111",
+    "Name": "Comparativa Alcance Q1 vs Q2 2025",
+    "Description": "Comparación del alcance en redes sociales entre Q1 y Q2 de 2025",
+    "ComparisonType": "PeriodOverPeriod",
+    "MetricRecordIds": [
+      "f6a7b8c9-abcd-ef01-2345-111111111111",
+      "a7b8c9d0-bcde-f012-3456-222222222222"
+    ],
+    "StartPeriod": "2025-01-01T00:00:00Z",
+    "EndPeriod": "2025-06-30T00:00:00Z",
+    "Results": "{\"q1_average\": 12500, \"q2_average\": 15000, \"growth_percentage\": 20.0, \"trend\": \"positive\"}",
+    "CreatedDate": "2025-07-01T00:00:00Z",
+    "CreatedBy": "analytics_manager"
+  }
+]

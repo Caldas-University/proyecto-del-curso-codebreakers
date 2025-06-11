@@ -2,8 +2,7 @@ namespace SponsorshipManagement.Application.Dtos
 {
     public class ContractDto
     {
-        // No enviar Id ni CreatedAt en la creación
-        public string? Id { get; set; } // Puede ser null en creación
+        public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Value { get; set; }
@@ -14,5 +13,6 @@ namespace SponsorshipManagement.Application.Dtos
         public string EventId { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; } // Puede ser null en creación
         public DateTime? UpdatedAt { get; set; }
+        public bool IsActive { get; set; }
     }
 }

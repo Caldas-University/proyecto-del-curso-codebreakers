@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using SponsorshipManagement.Domain.Entities;
 
 namespace SponsorshipManagement.Domain.Interfaces
@@ -10,7 +12,12 @@ namespace SponsorshipManagement.Domain.Interfaces
         Task<IEnumerable<Contract>> GetAllAsync();
         Task<IEnumerable<Contract>> GetActiveContractsAsync();
         Task<bool> AddAsync(Contract contract);
-        Task<bool> UpdateAsync(Contract contract);
+        Task<Contract> UpdateAsync(Contract contract);
         Task<bool> DeleteAsync(Guid id);
+        Task<IEnumerable<Contract>> GetBySponsorIdAsync(string sponsorId);
+        Task<IEnumerable<Contract>> GetByEventIdAsync(string eventId);
+        Task<IEnumerable<Contract>> GetByStatusAsync(ContractStatus status);
+        Task<Contract> CreateAsync(Contract contract);
     }
+
 }
