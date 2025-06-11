@@ -13,6 +13,8 @@ builder.Services.AddScoped<ISponsorRepository, SponsorRepository>();
 builder.Services.AddScoped<ISponsorService, SponsorService>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IContractService, ContractService>(); 
+builder.Services.AddScoped<IContractHistoryService, ContractHistoryService>();
 
 // 🎯 SERVICIOS PARA CU-PA-02.01.3 - Validación de existencia del contrato
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
