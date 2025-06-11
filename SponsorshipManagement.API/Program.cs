@@ -57,6 +57,9 @@ builder.Services.AddScoped<IContractComplianceReportRepository, ContractComplian
 builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<IContractComplianceService, ContractComplianceService>();
 
+// 🎯 SERVICIOS PARA CU-PA-05 - Gestión de renovaciones y finalización de contratos
+builder.Services.AddScoped<IContractRenewalService, ContractRenewalService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 

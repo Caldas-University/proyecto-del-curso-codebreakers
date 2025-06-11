@@ -14,6 +14,17 @@ namespace SponsorshipManagement.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        /// <summary>
+        /// Indica si se ha enviado notificación de renovación
+        /// 🎯 CU-PA-05: Control de notificaciones de renovación
+        /// </summary>
+        public bool? NotificationSent { get; set; }
+
+        /// <summary>
+        /// Fecha de la última notificación enviada
+        /// </summary>
+        public DateTime? LastNotificationDate { get; set; }
+
         public Contract()
         {
             Id = Guid.NewGuid();
