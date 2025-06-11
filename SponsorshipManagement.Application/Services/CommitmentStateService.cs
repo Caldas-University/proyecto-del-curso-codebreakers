@@ -1,5 +1,6 @@
 using SponsorshipManagement.Domain.Entities;
 using SponsorshipManagement.Domain.Interfaces;
+using SponsorshipManagement.Application.Interfaces;  // AGREGAR ESTE USING
 
 namespace SponsorshipManagement.Application.Services
 {
@@ -10,10 +11,14 @@ namespace SponsorshipManagement.Application.Services
     public class CommitmentStateService
     {
         private readonly ICommitmentRepository _commitmentRepository;
+        private readonly IAuditService? _auditService; // USAR LA INTERFAZ CORRECTA
 
-        public CommitmentStateService(ICommitmentRepository commitmentRepository)
+        public CommitmentStateService(
+            ICommitmentRepository commitmentRepository,
+            IAuditService? auditService = null)  // INTERFAZ CORRECTA
         {
             _commitmentRepository = commitmentRepository;
+            _auditService = auditService;
         }
 
         /// <summary>
@@ -96,6 +101,16 @@ namespace SponsorshipManagement.Application.Services
                     
                     // Log para auditoría
                     await LogStateChangeAsync(commitmentId, currentStatus, newStatus, reason);
+
+                    // CU-PA-02.01.5: Registrar auditoría de cambio de estado
+                    if (_auditService != null)
+                    {
+                        await _auditService.LogCommitmentStatusChangeAsync(commitmentId, currentStatus, newStatus, reason);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"AuditService no disponible. Cambio: {currentStatus} -> {newStatus}");
+                    }
                 }
 
                 return success;

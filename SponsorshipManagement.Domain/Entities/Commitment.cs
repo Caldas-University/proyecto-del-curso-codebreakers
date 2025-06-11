@@ -26,15 +26,15 @@ namespace SponsorshipManagement.Domain.Entities
         public Commitment()
         {
             Id = Guid.NewGuid();
-            Status = CommitmentStatus.Pending; // 🎯 Estado inicial siempre "Pendiente"
+            Status = CommitmentStatus.Pending; //  Estado inicial siempre "Pendiente"
             CreatedAt = DateTime.UtcNow;
             
-            Console.WriteLine($"🎯 CU-PA-02.01.4: Compromiso {Id} creado con estado inicial 'Pending'");
+            Console.WriteLine($" CU-PA-02.01.4: Compromiso {Id} creado con estado inicial 'Pending'");
         }
 
         /// <summary>
         /// Constructor principal para crear compromisos
-        /// 🎯 CU-PA-02.01.4: Garantiza estado inicial "Pendiente"
+        ///  CU-PA-02.01.4: Garantiza estado inicial "Pendiente"
         /// </summary>
         public Commitment(Guid contractId, string description, string obligations, DateTime dueDate, string responsible)
             : this() // Llama al constructor base que asigna estado Pending
@@ -53,13 +53,13 @@ namespace SponsorshipManagement.Domain.Entities
         }
 
         /// <summary>
-        /// 🎯 CU-PA-02.01.4: Inicia el compromiso (Pending → InProgress)
+        ///  CU-PA-02.01.4: Inicia el compromiso (Pending → InProgress)
         /// </summary>
         public bool StartCommitment(string reason = "")
         {
             if (Status != CommitmentStatus.Pending)
             {
-                Console.WriteLine($"❌ No se puede iniciar compromiso {Id}. Estado actual: {Status}");
+                Console.WriteLine($" No se puede iniciar compromiso {Id}. Estado actual: {Status}");
                 return false;
             }
 
@@ -68,18 +68,18 @@ namespace SponsorshipManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             StatusReason = reason;
 
-            Console.WriteLine($"🎯 Compromiso {Id}: Pending → InProgress");
+            Console.WriteLine($" Compromiso {Id}: Pending → InProgress");
             return true;
         }
 
         /// <summary>
-        /// 🎯 CU-PA-02.01.4: Completa el compromiso (InProgress → Completed)
+        /// CU-PA-02.01.4: Completa el compromiso (InProgress → Completed)
         /// </summary>
         public bool CompleteCommitment(string completionNotes = "")
         {
             if (Status != CommitmentStatus.InProgress)
             {
-                Console.WriteLine($"❌ No se puede completar compromiso {Id}. Estado actual: {Status}");
+                Console.WriteLine($" No se puede completar compromiso {Id}. Estado actual: {Status}");
                 return false;
             }
 
@@ -88,12 +88,12 @@ namespace SponsorshipManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             CompletionNotes = completionNotes;
 
-            Console.WriteLine($"✅ Compromiso {Id}: InProgress → Completed");
+            Console.WriteLine($" Compromiso {Id}: InProgress → Completed");
             return true;
         }
 
         /// <summary>
-        /// 🎯 CU-PA-02.01.4: Cancela el compromiso (cualquier estado → Cancelled)
+        /// CU-PA-02.01.4: Cancela el compromiso (cualquier estado → Cancelled)
         /// </summary>
         public bool CancelCommitment(string reason)
         {
@@ -105,7 +105,7 @@ namespace SponsorshipManagement.Domain.Entities
 
             if (Status == CommitmentStatus.Completed)
             {
-                Console.WriteLine($"❌ No se puede cancelar compromiso {Id} porque ya está completado");
+                Console.WriteLine($" No se puede cancelar compromiso {Id} porque ya está completado");
                 return false;
             }
 
@@ -114,12 +114,12 @@ namespace SponsorshipManagement.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             StatusReason = reason;
 
-            Console.WriteLine($"❌ Compromiso {Id}: {Status} → Cancelled. Razón: {reason}");
+            Console.WriteLine($" Compromiso {Id}: {Status} → Cancelled. Razón: {reason}");
             return true;
         }
 
         /// <summary>
-        /// 🎯 CU-PA-02.01.4: Verifica si el compromiso está vencido
+        ///  CU-PA-02.01.4: Verifica si el compromiso está vencido
         /// </summary>
         public bool IsOverdue()
         {
@@ -127,7 +127,7 @@ namespace SponsorshipManagement.Domain.Entities
         }
 
         /// <summary>
-        /// 🎯 CU-PA-02.01.4: Marca automáticamente como vencido si aplica
+        /// CU-PA-02.01.4: Marca automáticamente como vencido si aplica
         /// </summary>
         public bool MarkAsOverdueIfApplicable()
         {

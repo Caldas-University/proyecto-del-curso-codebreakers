@@ -1,7 +1,7 @@
-using SponsorshipManagement.Application.Interfaces;
-using SponsorshipManagement.Application.Services;
-using SponsorshipManagement.Domain.Interfaces;
-using SponsorshipManagement.Infrastructure.Repositories;
+using SponsorshipManagement.Application.Interfaces;  // Para IAuditService
+using SponsorshipManagement.Application.Services;    // Para AuditService
+using SponsorshipManagement.Domain.Interfaces;       // Para IAuditRepository
+using SponsorshipManagement.Infrastructure.Repositories; // Para AuditRepository
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +24,11 @@ builder.Services.AddScoped<ICommitmentRepository, CommitmentRepository>();
 // 🎯 NUEVO: CU-PA-02.01.4 - Gestión de estados
 builder.Services.AddScoped<CommitmentStateService>();
 
+// CU-PA-02.01.5: Servicios de auditoría
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+
+// SERVICIOS DE NEGOCIO (CommitmentService debe recibir IAuditService)
 builder.Services.AddScoped<ICommitmentService, CommitmentService>();
 
 // 📋 CONFIGURACIÓN DE ASP.NET CORE

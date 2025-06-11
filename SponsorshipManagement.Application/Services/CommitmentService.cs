@@ -3,39 +3,26 @@ using SponsorshipManagement.Application.Interfaces;
 using SponsorshipManagement.Domain.Entities;
 using SponsorshipManagement.Domain.Interfaces;
 
+
 namespace SponsorshipManagement.Application.Services
 {
     public class CommitmentService : ICommitmentService
     {
         private readonly ICommitmentRepository _commitmentRepository;
-        private readonly IContractValidationService? _contractValidationService;
-        private readonly CommitmentStateService? _stateService;
+        private readonly IContractValidationService _contractValidationService;
+        private readonly CommitmentStateService _stateService;
+        private readonly IAuditService? _auditService;  // DEBE ESTAR AQUÍ
 
-        // Constructors existentes...
         public CommitmentService(
             ICommitmentRepository commitmentRepository,
             IContractValidationService contractValidationService,
-            CommitmentStateService stateService)
+            CommitmentStateService stateService,
+            IAuditService? auditService = null)  // DEBE RECIBIR IAuditService
         {
             _commitmentRepository = commitmentRepository;
             _contractValidationService = contractValidationService;
             _stateService = stateService;
-        }
-
-        public CommitmentService(
-            ICommitmentRepository commitmentRepository,
-            IContractValidationService contractValidationService)
-        {
-            _commitmentRepository = commitmentRepository;
-            _contractValidationService = contractValidationService;
-            _stateService = null;
-        }
-
-        public CommitmentService(ICommitmentRepository commitmentRepository)
-        {
-            _commitmentRepository = commitmentRepository;
-            _contractValidationService = null;
-            _stateService = null;
+            _auditService = auditService;  // DEBE ASIGNARSE
         }
 
         // ...existing methods...
@@ -191,29 +178,36 @@ namespace SponsorshipManagement.Application.Services
 
         // ...existing methods como CreateCommitmentAsync, UpdateCommitmentAsync, etc...
 
-        public async Task<CommitmentDto?> CreateCommitmentAsync(CreateCommitmentRequest request)
+        public async Task<CommitmentDto?> CreateCommitmentAsync(CreateCommitmentRequest createCommitmentRequest)
         {
             try
             {
+                Console.WriteLine($"📥 Recibiendo request para crear compromiso:");
+                Console.WriteLine($"   ContractId: {createCommitmentRequest.ContractId}");
+                Console.WriteLine($"   Description: {createCommitmentRequest.Description}");
+                Console.WriteLine($"   DueDate: {createCommitmentRequest.DueDate}");
+                Console.WriteLine($"   Responsible: {createCommitmentRequest.Responsible}");
+
+                // VALIDACIÓN Y CREACIÓN DEL COMPROMISO
                 // PASO 1-3: Validaciones existentes
-                await ValidateRequestDataAsync(request);
+                await ValidateRequestDataAsync(createCommitmentRequest);
                 
-                if (!Guid.TryParse(request.ContractId, out var contractId))
+                if (!Guid.TryParse(createCommitmentRequest.ContractId, out var contractId))
                 {
                     throw new ArgumentException("El formato del ID del contrato es inválido. Debe ser un GUID válido.");
                 }
 
                 await ValidateContractExistenceAsync(contractId);
-                await ValidateBusinessRulesAsync(request);
+                await ValidateBusinessRulesAsync(createCommitmentRequest);
 
                 // ✅ PASO 4: Crear el compromiso 
                 // 🎯 CU-PA-02.01.4: El constructor asigna automáticamente estado "Pending"
                 var commitment = new Commitment(
                     contractId,
-                    request.Description.Trim(),
-                    request.Obligations.Trim(),
-                    request.DueDate,
-                    request.Responsible.Trim()
+                    createCommitmentRequest.Description.Trim(),
+                    createCommitmentRequest.Obligations.Trim(),
+                    createCommitmentRequest.DueDate,
+                    createCommitmentRequest.Responsible.Trim()
                 );
 
                 Console.WriteLine($"🎯 CU-PA-02.01.4: Compromiso creado con estado inicial: {commitment.Status}");
@@ -225,22 +219,30 @@ namespace SponsorshipManagement.Application.Services
                     throw new InvalidOperationException("Error interno: No se pudo almacenar el compromiso");
                 }
 
-                // 🎯 PASO 6: CU-PA-02.01.4 - Inicializar y validar estado
-                if (_stateService != null)
+                // CU-PA-02.01.5: Registrar auditoría de creación
+                if (_auditService != null)
                 {
-                    await _stateService.InitializeCommitmentStateAsync(commitment.Id);
+                    Console.WriteLine($"🔍 Llamando a AuditService.LogCommitmentCreationAsync...");
+                    var auditResult = await _auditService.LogCommitmentCreationAsync(commitment);
+                    Console.WriteLine($"📝 Resultado de auditoría: {auditResult}");
                 }
                 else
                 {
-                    Console.WriteLine("⚠️ StateService no disponible, usando estado por defecto del constructor");
+                    Console.WriteLine("❌ AuditService NO disponible - No se registrará auditoría");
                 }
 
-                // PASO 7: Registrar auditoría
-                await RegisterAuditLogAsync("CREATE_COMMITMENT", commitment);
+                // STATE SERVICE
+                if (_stateService != null)
+                {
+                    Console.WriteLine($"🎯 CU-PA-02.01.4: Inicializando estado para compromiso {commitment.Id}");
+                    await _stateService.InitializeCommitmentStateAsync(commitment.Id);
+                    Console.WriteLine($"✅ CU-PA-02.01.4: Compromiso {commitment.Id} confirmado en estado {commitment.Status}");
+                }
 
                 Console.WriteLine($"✅ Compromiso {commitment.Id} creado exitosamente en estado {commitment.Status}");
+                Console.WriteLine($"✅ Compromiso creado exitosamente: {commitment.Id}");
 
-                // PASO 8: Retornar DTO
+                // ✅ RETORNAR CommitmentDto EN LUGAR DE Guid
                 return new CommitmentDto
                 {
                     Id = commitment.Id.ToString(),
@@ -249,22 +251,15 @@ namespace SponsorshipManagement.Application.Services
                     Obligations = commitment.Obligations,
                     DueDate = commitment.DueDate,
                     Responsible = commitment.Responsible,
-                    Status = commitment.Status.ToString(), // 🎯 Siempre será "Pending"
+                    Status = commitment.Status.ToString(),
                     CreatedAt = commitment.CreatedAt,
                     UpdatedAt = commitment.UpdatedAt
                 };
             }
-            catch (ArgumentException)
-            {
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Error inesperado al crear el compromiso: {ex.Message}", ex);
+                Console.WriteLine($"❌ Error creando compromiso: {ex.Message}");
+                throw;
             }
         }
 

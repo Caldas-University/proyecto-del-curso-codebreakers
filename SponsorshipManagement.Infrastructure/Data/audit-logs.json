@@ -1,0 +1,17 @@
+[
+  {
+    "Id": "d6482f89-8f67-4509-9d52-d4b0a48e9da7",
+    "EntityType": "Commitment",
+    "EntityId": "1fd4c5d0-507f-46f3-ac97-ceb8e0e98aee",
+    "Action": "CREATE",
+    "UserId": "system",
+    "UserName": "Sistema",
+    "Timestamp": "2025-06-11T07:38:09.0491402Z",
+    "Details": "Compromiso creado: Compromiso de prueba para auditor\u00EDa",
+    "OldValues": null,
+    "NewValues": "{\u0022Id\u0022:\u00221fd4c5d0-507f-46f3-ac97-ceb8e0e98aee\u0022,\u0022ContractId\u0022:\u0022123e4567-e89b-12d3-a456-426614174000\u0022,\u0022Description\u0022:\u0022Compromiso de prueba para auditor\\u00EDa\u0022,\u0022Obligations\u0022:\u0022Verificar que se registre en audit-logs.json\u0022,\u0022DueDate\u0022:\u00222025-12-31T23:59:59Z\u0022,\u0022Responsible\u0022:\u0022Tester de Auditor\\u00EDa\u0022,\u0022Status\u0022:0,\u0022CreatedAt\u0022:\u00222025-06-11T07:38:08.9816315Z\u0022}",
+    "IpAddress": "",
+    "UserAgent": "",
+    "Source": "CU-PA-02.01.5"
+  }
+]
