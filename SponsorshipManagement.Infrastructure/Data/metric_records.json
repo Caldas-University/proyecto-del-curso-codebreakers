@@ -1,0 +1,44 @@
+[
+  {
+    "Id": "f6a7b8c9-abcd-ef01-2345-111111111111",
+    "MetricId": "a1b2c3d4-5678-9abc-def0-111111111111",
+    "AdvertisingBenefitExecutionId": "d4e5f6a7-89ab-cdef-0123-456789abcdef",
+    "SponsorDocumentNumber": "123456789",
+    "EventId": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "Value": 15000.00,
+    "MeasurementDate": "2025-06-15T00:00:00Z",
+    "Source": "Facebook",
+    "Period": "Evento",
+    "Notes": "Medición durante el evento en Lima",
+    "CreatedDate": "2025-06-16T00:00:00Z",
+    "CreatedBy": "analytics_team"
+  },
+  {
+    "Id": "a7b8c9d0-bcde-f012-3456-222222222222",
+    "MetricId": "b2c3d4e5-6789-abcd-ef01-222222222222",
+    "AdvertisingBenefitExecutionId": "d4e5f6a7-89ab-cdef-0123-456789abcdef",
+    "SponsorDocumentNumber": "123456789",
+    "EventId": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "Value": 850.00,
+    "MeasurementDate": "2025-06-15T00:00:00Z",
+    "Source": "Instagram",
+    "Period": "Evento",
+    "Notes": "Total de interacciones durante el evento",
+    "CreatedDate": "2025-06-16T00:00:00Z",
+    "CreatedBy": "social_media_manager"
+  },
+  {
+    "Id": "b8c9d0e1-cdef-0123-4567-333333333333",
+    "MetricId": "c3d4e5f6-789a-bcde-f012-333333333333",
+    "AdvertisingBenefitExecutionId": "d4e5f6a7-89ab-cdef-0123-456789abcdef",
+    "SponsorDocumentNumber": "123456789",
+    "EventId": "b1a7e2e1-1c2d-4e3f-8a7b-1234567890ab",
+    "Value": 320.00,
+    "MeasurementDate": "2025-06-15T00:00:00Z",
+    "Source": "Google Analytics",
+    "Period": "Evento",
+    "Notes": "Tráfico desde enlaces del evento",
+    "CreatedDate": "2025-06-16T00:00:00Z",
+    "CreatedBy": "web_analyst"
+  }
+]

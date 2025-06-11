@@ -18,6 +18,16 @@ builder.Services.AddScoped<IAdvertisingBenefitExecutionRepository, AdvertisingBe
 builder.Services.AddScoped<IAdvertisingBenefitService, AdvertisingBenefitService>();
 builder.Services.AddScoped<IAdvertisingBenefitExecutionService, AdvertisingBenefitExecutionService>();
 
+// Registrar repositorios de métricas
+builder.Services.AddScoped<IMetricRepository, MetricRepository>();
+builder.Services.AddScoped<IMetricRecordRepository, MetricRecordRepository>();
+builder.Services.AddScoped<IMetricComparisonRepository, MetricComparisonRepository>();
+
+// Registrar servicios de métricas
+builder.Services.AddScoped<IMetricService, MetricService>();
+builder.Services.AddScoped<IMetricRecordService, MetricRecordService>();
+builder.Services.AddScoped<IMetricComparisonService, MetricComparisonService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
