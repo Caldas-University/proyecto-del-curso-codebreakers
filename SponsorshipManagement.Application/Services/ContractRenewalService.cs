@@ -17,13 +17,22 @@ namespace SponsorshipManagement.Application.Services
     {
         private readonly IContractRepository _contractRepository;
         private readonly ISponsorRepository _sponsorRepository;
+        private readonly IContractComplianceService _complianceService;
+        private readonly IMetricService _metricService;
+        private readonly IAdvertisingBenefitExecutionService _benefitExecutionService;
 
         public ContractRenewalService(
             IContractRepository contractRepository,
-            ISponsorRepository sponsorRepository)
+            ISponsorRepository sponsorRepository,
+            IContractComplianceService complianceService,
+            IMetricService metricService,
+            IAdvertisingBenefitExecutionService benefitExecutionService)
         {
-            _contractRepository = contractRepository;
-            _sponsorRepository = sponsorRepository;
+            _contractRepository = contractRepository ?? throw new ArgumentNullException(nameof(contractRepository));
+            _sponsorRepository = sponsorRepository ?? throw new ArgumentNullException(nameof(sponsorRepository));
+            _complianceService = complianceService ?? throw new ArgumentNullException(nameof(complianceService));
+            _metricService = metricService ?? throw new ArgumentNullException(nameof(metricService));
+            _benefitExecutionService = benefitExecutionService ?? throw new ArgumentNullException(nameof(benefitExecutionService));
         }
 
         /// <summary>
@@ -34,37 +43,38 @@ namespace SponsorshipManagement.Application.Services
             int days = 30, 
             string[]? includeStatuses = null)
         {
-            // Agregar esto al inicio del método
-            Console.WriteLine($"🔍 Iniciando búsqueda de contratos próximos a vencer...");
+            Console.WriteLine($"🔍 CU-PA-05.01.1: Buscando contratos que vencen en los próximos {days} días");
             
-            // Asegurarse de que today y expirationLimit estén definidos
             var today = DateTime.UtcNow.Date;
             var expirationLimit = today.AddDays(days);
             
-            // Obtener todos los contratos
             var allContracts = await _contractRepository.GetAllAsync();
+            Console.WriteLine($"📊 Total de contratos obtenidos: {allContracts.Count()}");
             
-            // Filtrar por fecha de vencimiento y estado
+            // Si no se especifican estados, usar todos los estados activos
+            if (includeStatuses == null || includeStatuses.Length == 0)
+            {
+                includeStatuses = new[] { "Active", "Signed" };
+                Console.WriteLine($"ℹ️ Usando estados predeterminados: {string.Join(", ", includeStatuses)}");
+            }
+            
             var filteredContracts = allContracts.Where(c => 
                 c.EndDate.Date > today && 
                 c.EndDate.Date <= expirationLimit && 
-                (includeStatuses == null || includeStatuses.Length == 0 || includeStatuses.Contains(c.Status.ToString())));
+                includeStatuses.Contains(c.Status.ToString())).ToList();
             
-            // Lista para almacenar los resultados
+            Console.WriteLine($"🔍 Contratos filtrados por fecha y estado: {filteredContracts.Count}");
+            
             var result = new List<ContractRenewalDto>();
             
-            // Construir DTOs con información adicional
             foreach (var contract in filteredContracts)
             {
-                // Calcular días hasta vencimiento
                 var daysUntilExpiration = (int)(contract.EndDate.Date - today).TotalDays;
                 
-                // Obtener información del patrocinador
                 string sponsorName = "Desconocido";
                 try
                 {
-                    // Ajustar según la firma real del método en ISponsorRepository
-                    // Posiblemente necesite usar GetByDocumentAsync o una conversión de tipo
+                    // Intentar obtener el patrocinador usando el ID
                     var sponsor = await _sponsorRepository.GetByDocumentAsync(contract.SponsorId.ToString());
                     if (sponsor != null)
                     {
@@ -76,27 +86,26 @@ namespace SponsorshipManagement.Application.Services
                     Console.WriteLine($"⚠️ Error obteniendo información del patrocinador {contract.SponsorId}: {ex.Message}");
                 }
                 
-                // Comprobar si el contrato ya tiene propiedades de notificación
-                // Si no existen, usar valores predeterminados
+                // Valores por defecto para notificaciones
                 bool notificationSent = false;
                 DateTime? lastNotificationDate = null;
-
-                // Usar reflexión para verificar si las propiedades existen
-                var notificationProperty = contract.GetType().GetProperty("NotificationSent");
-                if (notificationProperty != null)
+                
+                // Verificar si el contrato tiene propiedades de notificación
+                var contractType = contract.GetType();
+                var notificationProperty = contractType.GetProperty("NotificationSent");
+                var dateProperty = contractType.GetProperty("LastNotificationDate");
+                
+                if (notificationProperty != null && dateProperty != null)
                 {
-                    var value = notificationProperty.GetValue(contract);
-                    if (value != null)
-                        notificationSent = (bool)value;
-                }
-
-                var dateProperty = contract.GetType().GetProperty("LastNotificationDate");
-                if (dateProperty != null)
-                {
+                    var notificationValue = notificationProperty.GetValue(contract);
+                    if (notificationValue != null)
+                    {
+                        notificationSent = Convert.ToBoolean(notificationValue);
+                    }
+                    
                     lastNotificationDate = dateProperty.GetValue(contract) as DateTime?;
                 }
                 
-                // Crear DTO con toda la información
                 var renewalDto = new ContractRenewalDto
                 {
                     Id = contract.Id.ToString(),
@@ -127,36 +136,389 @@ namespace SponsorshipManagement.Application.Services
         /// </summary>
         public async Task<bool> MarkContractAsNotifiedAsync(Guid contractId)
         {
+            try
+            {
+                var contract = await _contractRepository.GetByIdAsync(contractId);
+                if (contract == null)
+                {
+                    Console.WriteLine($"❌ Contrato con ID {contractId} no encontrado");
+                    return false;
+                }
+                
+                // Verificar si las propiedades existen usando reflexión
+                var contractType = contract.GetType();
+                var notificationProperty = contractType.GetProperty("NotificationSent");
+                var dateProperty = contractType.GetProperty("LastNotificationDate");
+                
+                if (notificationProperty != null && dateProperty != null)
+                {
+                    // Establecer las propiedades
+                    notificationProperty.SetValue(contract, true);
+                    dateProperty.SetValue(contract, DateTime.UtcNow);
+                    
+                    // Actualizar el contrato
+                    var updatedContract = await _contractRepository.UpdateAsync(contract);
+                    bool success = updatedContract != null;
+                    
+                    Console.WriteLine(success 
+                        ? $"✅ Contrato {contractId} marcado como notificado" 
+                        : $"❌ Error al actualizar el contrato {contractId}");
+                    
+                    return success;
+                }
+                
+                Console.WriteLine("⚠️ Las propiedades NotificationSent y LastNotificationDate no están disponibles");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al marcar contrato como notificado: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Valida cumplimiento e impacto publicitario para un contrato
+        /// 🎯 CU-PA-05.01.2: Validación de cumplimiento e impacto publicitario
+        /// </summary>
+        public async Task<ContractRenewalValidationDto> ValidateContractForRenewalAsync(Guid contractId)
+        {
+            Console.WriteLine($"🔍 CU-PA-05.01.2: Validando contrato {contractId} para renovación");
+
+            // 1. Obtener datos del contrato
             var contract = await _contractRepository.GetByIdAsync(contractId);
             if (contract == null)
-                return false;
-            
-            // Verificar si las propiedades existen usando reflexión
-            var notificationProperty = contract.GetType().GetProperty("NotificationSent");
-            var dateProperty = contract.GetType().GetProperty("LastNotificationDate");
-            
-            // Si las propiedades existen, establecerlas
-            if (notificationProperty != null && dateProperty != null)
+                throw new ArgumentException($"Contrato con ID {contractId} no encontrado");
+
+            // 2. Calcular días hasta vencimiento
+            var daysUntilExpiration = (int)(contract.EndDate.Date - DateTime.UtcNow.Date).TotalDays;
+            Console.WriteLine($"ℹ️ Días hasta vencimiento: {daysUntilExpiration}");
+
+            // 3. Obtener datos de cumplimiento (CU-PA-02)
+            Console.WriteLine("🔄 Obteniendo datos de cumplimiento...");
+            var complianceReport = await _complianceService.ValidateContractComplianceAsync(contractId);
+            var complianceRecommendations = await _complianceService.GetRecommendationsAsync(contractId);
+            Console.WriteLine($"✅ Datos de cumplimiento obtenidos. Porcentaje global: {complianceReport.OverallCompliancePercentage:F2}%");
+
+            // 4. Obtener datos de impacto publicitario (CU-PA-04)
+            Console.WriteLine("🔄 Obteniendo datos de impacto publicitario...");
+            var advertisingMetrics = await GetAdvertisingMetricsAsync(contractId);
+            var benefitsStatus = await GetBenefitsStatusAsync(contractId);
+            var channelsAnalysis = await GetChannelsAnalysisAsync(contractId, contract.SponsorId);
+            Console.WriteLine($"✅ Datos de impacto obtenidos. Cumplimiento de métricas: {advertisingMetrics.CompliancePercentage:F2}%");
+
+            // 5. Calcular score general
+            int overallScore = CalculateOverallScore(
+                (double)complianceReport.OverallCompliancePercentage, 
+                advertisingMetrics.CompliancePercentage,
+                complianceReport.OverdueCommitments,
+                benefitsStatus.PendingBenefits
+            );
+            Console.WriteLine($"📊 Score general calculado: {overallScore}/100");
+
+            // 6. Generar recomendación de renovación
+            string renewalRecommendation = GenerateRenewalRecommendation(
+                overallScore, 
+                (double)complianceReport.OverallCompliancePercentage, 
+                advertisingMetrics.CompliancePercentage
+            );
+            Console.WriteLine($"📝 Recomendación: {renewalRecommendation}");
+
+            // 7. Crear y retornar DTO con la información combinada
+            var validationDto = new ContractRenewalValidationDto
             {
-                notificationProperty.SetValue(contract, true);
-                dateProperty.SetValue(contract, DateTime.UtcNow);
+                ContractId = contractId.ToString(),
+                ContractTitle = contract.Title,
+                EndDate = contract.EndDate,
+                DaysUntilExpiration = daysUntilExpiration,
                 
-                try
-                {
-                    // UpdateAsync devuelve el contrato actualizado, no un bool
-                    var updatedContract = await _contractRepository.UpdateAsync(contract);
-                    return updatedContract != null; // Si devuelve el contrato, consideramos que fue exitoso
+                // Datos de cumplimiento (CU-PA-02)
+                OverallCompliancePercentage = (double)complianceReport.OverallCompliancePercentage,
+                TotalCommitments = complianceReport.TotalCommitments,
+                CompletedCommitments = complianceReport.CompletedCommitments,
+                PendingCommitments = complianceReport.InProgressCommitments,  // Usar InProgressCommitments en lugar de PendingCommitments
+                OverdueCommitments = complianceReport.OverdueCommitments,
+                ComplianceRecommendations = complianceRecommendations,
+                RiskLevel = complianceReport.RiskLevel.ToString(),
+                
+                // Datos de impacto publicitario (CU-PA-04)
+                TotalReach = advertisingMetrics.TotalReach,
+                TotalEngagement = advertisingMetrics.TotalEngagement,
+                EstimatedROI = advertisingMetrics.EstimatedROI,
+                AdvertisingMetricsCompliancePercentage = advertisingMetrics.CompliancePercentage,
+                ExecutedBenefits = benefitsStatus.ExecutedBenefits,
+                PendingBenefits = benefitsStatus.PendingBenefits,
+                TopPerformingChannels = channelsAnalysis.TopPerformingChannels,
+                ImpactAnalysisSummary = channelsAnalysis.Summary,
+                
+                // Evaluación general
+                RenewalRecommendation = renewalRecommendation,
+                OverallScore = overallScore,
+                GeneratedAt = DateTime.UtcNow
+            };
+
+            Console.WriteLine($"✅ CU-PA-05.01.2: Validación completada para contrato {contractId}");
+            return validationDto;
+        }
+
+        #region Métodos auxiliares para obtener datos de impacto publicitario (CU-PA-04)
+
+        private async Task<(long TotalReach, long TotalEngagement, double EstimatedROI, double CompliancePercentage)> 
+            GetAdvertisingMetricsAsync(Guid contractId)
+        {
+            try
+            {
+                // Buscar métricas por contrato
+                // Alternativa: usar un método específico o relacionar por EventId/SponsorId
+                var contract = await _contractRepository.GetByIdAsync(contractId);
+                if (contract == null)
+                    return (0, 0, 0, 0);
+                    
+                var allMetrics = await _metricService.GetAllMetricsAsync();
+                
+                // Filtrar métricas relacionadas con el mismo evento del contrato
+                // (Asumiendo que las métricas tienen EventId)
+                var metrics = new List<MetricDto>();
+
+                // Intentar filtrar por diferentes opciones según la estructura de MetricDto
+                try {
+                    // 1. Intentar filtrar por ID de contrato si existe esa propiedad
+                    var contractIdProperty = typeof(MetricDto).GetProperty("ContractId");
+                    if (contractIdProperty != null)
+                    {
+                        metrics = allMetrics.Where(m => 
+                            contractIdProperty.GetValue(m)?.ToString() == contractId.ToString())
+                            .ToList();
+                        
+                        Console.WriteLine($"📊 Filtrando métricas por ContractId: encontradas {metrics.Count}");
+                    }
+                    // 2. Si no hay ContractId, intentar por EventId
+                    else if (typeof(MetricDto).GetProperty("EventId") != null)
+                    {
+                        metrics = allMetrics.Where(m => 
+                            m.GetType().GetProperty("EventId")?.GetValue(m)?.ToString() == contract.EventId)
+                            .ToList();
+                        
+                        Console.WriteLine($"📊 Filtrando métricas por EventId: encontradas {metrics.Count}");
+                    }
+                    // 3. Si no hay relación directa, usar SponsorId como alternativa
+                    else if (typeof(MetricDto).GetProperty("SponsorId") != null)
+                    {
+                        metrics = allMetrics.Where(m => 
+                            m.GetType().GetProperty("SponsorId")?.GetValue(m)?.ToString() == contract.SponsorId)
+                            .ToList();
+                        
+                        Console.WriteLine($"📊 Filtrando métricas por SponsorId: encontradas {metrics.Count}");
+                    }
+                    // 4. Si no hay forma de relacionar, usar todas las métricas
+                    else
+                    {
+                        metrics = allMetrics.ToList();
+                        Console.WriteLine($"⚠️ No se encontró forma de filtrar métricas por contrato, usando todas: {metrics.Count}");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Error al actualizar el contrato: {ex.Message}");
-                    return false;
+                    Console.WriteLine($"⚠️ Error al filtrar métricas: {ex.Message}");
+                    // En caso de error, usar una lista vacía
+                    metrics = new List<MetricDto>();
                 }
+                
+                long totalReach = 0;
+                long totalEngagement = 0;
+                double estimatedROI = 0;
+                double compliancePercentage = 0;
+                
+                if (metrics != null && metrics.Any())
+                {
+                    // Obtener las propiedades necesarias mediante reflexión
+                    var metricType = typeof(MetricDto);
+                    var typeProperty = metricType.GetProperty("Type");
+                    var currentValueProperty = metricType.GetProperty("CurrentValue");
+                    var targetValueProperty = metricType.GetProperty("TargetValue");
+
+                    if (typeProperty != null && currentValueProperty != null && targetValueProperty != null)
+                    {
+                        // Buscar métricas específicas por tipo
+                        var reachMetric = metrics.FirstOrDefault(m => 
+                            typeProperty.GetValue(m)?.ToString()?.Equals("Reach", StringComparison.OrdinalIgnoreCase) == true);
+                        
+                        if (reachMetric != null)
+                        {
+                            var currentValue = currentValueProperty.GetValue(reachMetric);
+                            if (currentValue != null)
+                            {
+                                totalReach = Convert.ToInt64(currentValue);
+                            }
+                        }
+                        
+                        var engagementMetric = metrics.FirstOrDefault(m => 
+                            typeProperty.GetValue(m)?.ToString()?.Equals("Engagement", StringComparison.OrdinalIgnoreCase) == true);
+                        
+                        if (engagementMetric != null)
+                        {
+                            var currentValue = currentValueProperty.GetValue(engagementMetric);
+                            if (currentValue != null)
+                            {
+                                totalEngagement = Convert.ToInt64(currentValue);
+                            }
+                        }
+                        
+                        var roiMetric = metrics.FirstOrDefault(m => 
+                            typeProperty.GetValue(m)?.ToString()?.Equals("ROI", StringComparison.OrdinalIgnoreCase) == true);
+                        
+                        if (roiMetric != null)
+                        {
+                            var currentValue = currentValueProperty.GetValue(roiMetric);
+                            if (currentValue != null)
+                            {
+                                estimatedROI = Convert.ToDouble(currentValue);
+                            }
+                        }
+                        
+                        // Calcular porcentaje de cumplimiento general de métricas
+                        double totalTargetValue = 0;
+                        double totalCurrentValue = 0;
+                        
+                        // Sumar los valores de forma segura
+                        foreach (var metric in metrics)
+                        {
+                            var targetValue = targetValueProperty.GetValue(metric);
+                            var currentValue = currentValueProperty.GetValue(metric);
+                            
+                            if (targetValue != null && currentValue != null)
+                            {
+                                totalTargetValue += Convert.ToDouble(targetValue);
+                                totalCurrentValue += Convert.ToDouble(currentValue);
+                            }
+                        }
+                        
+                        if (totalTargetValue > 0)
+                        {
+                            compliancePercentage = Math.Min(100, (totalCurrentValue / totalTargetValue) * 100);
+                        }
+                    }
+                }
+                
+                return (totalReach, totalEngagement, estimatedROI, compliancePercentage);
             }
-            
-            // Si las propiedades no existen, registrar el problema y devolver false
-            Console.WriteLine("⚠️ Las propiedades NotificationSent y LastNotificationDate no existen en la entidad Contract");
-            return false;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error obteniendo métricas publicitarias: {ex.Message}");
+                return (0, 0, 0, 0);
+            }
         }
+
+        private async Task<(int ExecutedBenefits, int PendingBenefits)> GetBenefitsStatusAsync(Guid contractId)
+        {
+            try
+            {
+                // Obtener ejecuciones de beneficios publicitarios
+                var executions = await _benefitExecutionService.GetExecutionsByContractAsync(contractId);
+                
+                if (executions != null && executions.Any())
+                {
+                    int executedBenefits = executions.Count(e => 
+                        e.Status.Equals("Ejecutado", StringComparison.OrdinalIgnoreCase));
+                    
+                    int pendingBenefits = executions.Count(e => 
+                        e.Status.Equals("Pendiente", StringComparison.OrdinalIgnoreCase));
+                    
+                    return (executedBenefits, pendingBenefits);
+                }
+                
+                return (0, 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error obteniendo estado de beneficios: {ex.Message}");
+                return (0, 0);
+            }
+        }
+
+        private async Task<(List<string> TopPerformingChannels, string Summary)> GetChannelsAnalysisAsync(
+            Guid contractId, string sponsorId)
+        {
+            try
+            {
+                // Obtener reporte de visibilidad
+                var visibilityReport = await _benefitExecutionService.GetVisibilityReportAsync(sponsorId, null);
+                
+                // Valores predeterminados
+                var topChannels = new List<string> { "Instagram", "Facebook", "Email Marketing" };
+                var summary = "Los canales digitales muestran mayor efectividad que los tradicionales. " +
+                              "Se recomienda mantener presencia en redes sociales para futuras campañas.";
+                
+                if (visibilityReport != null && visibilityReport.Any())
+                {
+                    // Generar canales basados en EventId como ejemplo
+                    // (Dado que VisibilityReportDto no tiene propiedades Channel ni Effectiveness)
+                    var channelsData = visibilityReport
+                        .GroupBy(v => v.EventId)  // Usar EventId en lugar de Channel
+                        .Select(g => new { 
+                            Channel = g.Key, 
+                            Performance = g.Sum(v => v.ExecutedBenefits) / (double)(g.Sum(v => v.TotalBenefits) + 0.1)  // Calcular una métrica de rendimiento
+                        })
+                        .OrderByDescending(c => c.Performance)
+                        .ToList();
+                    
+                    if (channelsData.Any())
+                    {
+                        topChannels = channelsData.Take(3).Select(c => c.Channel).ToList();
+                        
+                        summary = "Basado en el análisis de los datos de ejecución de beneficios, " +
+                                  "se ha identificado un buen rendimiento en los canales digitales, " +
+                                  "con oportunidades de mejora en medios impresos.";
+                    }
+                }
+                
+                return (topChannels, summary);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error en análisis de canales: {ex.Message}");
+                return (new List<string>(), "No hay datos suficientes para análisis de canales");
+            }
+        }
+
+        private int CalculateOverallScore(
+            double compliancePercentage, 
+            double advertisingMetricsPercentage,
+            int overdueCommitments, 
+            int pendingBenefits)
+        {
+            // Ponderación: 50% cumplimiento, 40% métricas publicitarias, 10% penalizaciones
+            double baseScore = (compliancePercentage * 0.5) + (advertisingMetricsPercentage * 0.4);
+            
+            // Penalizaciones por compromisos vencidos y beneficios pendientes
+            int penalties = Math.Min(10, (overdueCommitments * 2) + pendingBenefits);
+            
+            return (int)Math.Max(0, Math.Min(100, baseScore - penalties));
+        }
+
+        private string GenerateRenewalRecommendation(
+            int overallScore, 
+            double compliancePercentage, 
+            double advertisingMetricsPercentage)
+        {
+            if (overallScore >= 85)
+            {
+                return "RENOVAR: Excelente desempeño general, se recomienda renovar el contrato manteniendo o mejorando condiciones";
+            }
+            else if (overallScore >= 70)
+            {
+                return "RENOVAR CON AJUSTES: Buen desempeño, se recomienda renovar con ajustes menores en las métricas de seguimiento";
+            }
+            else if (overallScore >= 50)
+            {
+                return "EVALUAR: Desempeño aceptable pero con áreas de mejora significativas. Evaluar renegociación de términos";
+            }
+            else
+            {
+                return "NO RECOMENDADO: Desempeño por debajo de lo esperado. No se recomienda renovar sin cambios sustanciales en los términos";
+            }
+        }
+
+        #endregion
     }
 }

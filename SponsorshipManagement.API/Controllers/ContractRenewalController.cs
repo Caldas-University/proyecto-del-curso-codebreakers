@@ -86,5 +86,40 @@ namespace SponsorshipManagement.API.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Valida el cumplimiento e impacto publicitario para la renovación de un contrato
+        /// 🎯 CU-PA-05.01.2: Validación de cumplimiento e impacto publicitario
+        /// </summary>
+        /// <param name="id">ID del contrato a validar</param>
+        /// <returns>Datos de validación para la renovación</returns>
+        [HttpGet("validate/{id}")]
+        [ProducesResponseType(typeof(ContractRenewalValidationDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ContractRenewalValidationDto>> ValidateContractForRenewal(Guid id)
+        {
+            try
+            {
+                Console.WriteLine($"📥 Recibiendo solicitud de validación para contrato {id}");
+                
+                var validationData = await _renewalService.ValidateContractForRenewalAsync(id);
+                
+                Console.WriteLine($"✅ Validación generada para contrato {id} con score {validationData.OverallScore}/100");
+                
+                return Ok(validationData);
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine($"❌ Contrato no encontrado: {ex.Message}");
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en validación: {ex.Message}");
+                Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
     }
 }

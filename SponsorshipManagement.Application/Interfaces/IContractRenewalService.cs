@@ -23,6 +23,14 @@ namespace SponsorshipManagement.Application.Interfaces
             string[]? includeStatuses = null);
 
         /// <summary>
+        /// Valida cumplimiento e impacto publicitario para un contrato
+        /// 🎯 CU-PA-05.01.2: Validación de cumplimiento e impacto publicitario
+        /// </summary>
+        /// <param name="contractId">ID del contrato a validar</param>
+        /// <returns>Información combinada de cumplimiento e impacto</returns>
+        Task<ContractRenewalValidationDto> ValidateContractForRenewalAsync(Guid contractId);
+
+        /// <summary>
         /// Marca un contrato como notificado para renovación
         /// </summary>
         /// <param name="contractId">ID del contrato</param>
