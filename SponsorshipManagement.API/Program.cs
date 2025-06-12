@@ -78,14 +78,15 @@ builder.Services.AddSwaggerGen(c =>
 • CU-PA-02.01.2: Endpoint para registrar compromisos
 • CU-PA-02.01.3: Validación de existencia del contrato
 • CU-PA-02.01.4: Asignación de estado inicial 'pendiente'
+• CU-PA-05.01.1: Consulta de contratos próximos a vencer
+• CU-PA-05.01.2: Validación de cumplimiento e impacto publicitario
+• CU-PA-05.01.3: Exposición de contratos próximos a vencer con filtros avanzados
 
-📋 Endpoints Principales:
-• POST /api/Commitment - Registrar nuevo compromiso
-• GET /api/Commitment - Obtener todos los compromisos
-• GET /api/Commitment/{id} - Obtener compromiso por ID
-• GET /api/Commitment/contract/{contractId} - Compromisos por contrato
-• PUT /api/CommitmentState/{id}/status - Cambiar estado de compromiso
-• GET /api/CommitmentState/statistics - Estadísticas de estados",
+📋 Endpoints de Renovación de Contratos:
+• GET /api/ContractRenewal/expiring - Obtener contratos próximos a vencer
+• GET /api/ContractRenewal/expiring-summary - Obtener resumen estadístico de contratos próximos a vencer
+• GET /api/ContractRenewal/validate/{id} - Validar renovación de contrato
+• POST /api/ContractRenewal/{id}/notify - Marcar contrato como notificado",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "CodeBreakers Team",

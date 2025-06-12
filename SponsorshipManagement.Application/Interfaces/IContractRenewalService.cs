@@ -23,6 +23,22 @@ namespace SponsorshipManagement.Application.Interfaces
             string[]? includeStatuses = null);
 
         /// <summary>
+        /// Obtiene contratos que vencen según criterios avanzados de filtrado
+        /// 🎯 CU-PA-05.01.3: Exposición de contratos próximos a vencer con filtros avanzados
+        /// </summary>
+        /// <param name="filter">Criterios de filtrado</param>
+        /// <returns>Lista de contratos próximos a vencer que cumplen los criterios</returns>
+        Task<IEnumerable<ContractRenewalDto>> GetContractsExpiringAsync(ExpiringContractsFilterDto filter);
+
+        /// <summary>
+        /// Obtiene un resumen estadístico de los contratos próximos a vencer
+        /// 🎯 CU-PA-05.01.3: Exposición de estadísticas de contratos próximos a vencer
+        /// </summary>
+        /// <param name="days">Número de días para considerar</param>
+        /// <returns>Resumen estadístico de contratos próximos a vencer</returns>
+        Task<ExpiringContractsSummaryDto> GetExpiringContractsSummaryAsync(int days = 30);
+
+        /// <summary>
         /// Valida cumplimiento e impacto publicitario para un contrato
         /// 🎯 CU-PA-05.01.2: Validación de cumplimiento e impacto publicitario
         /// </summary>

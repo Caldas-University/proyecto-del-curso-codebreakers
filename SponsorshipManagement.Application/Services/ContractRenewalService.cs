@@ -519,6 +519,129 @@ namespace SponsorshipManagement.Application.Services
             }
         }
 
+        /// <summary>
+        /// Obtiene contratos que vencen según criterios avanzados de filtrado
+        /// 🎯 CU-PA-05.01.3: Exposición de contratos próximos a vencer con filtros avanzados
+        /// </summary>
+        public async Task<IEnumerable<ContractRenewalDto>> GetContractsExpiringAsync(ExpiringContractsFilterDto filter)
+        {
+            Console.WriteLine($"🔍 CU-PA-05.01.3: Buscando contratos con filtros avanzados, días={filter.Days}");
+            
+            // Obtener la lista básica de contratos que vencen en los próximos N días
+            var contracts = await GetContractsExpiringInDaysAsync(
+                filter.Days, 
+                filter.IncludeStatuses);
+            
+            // Aplicar filtros adicionales
+            var filteredContracts = contracts.AsEnumerable();
+            
+            // Filtrar por patrocinador si se especificó
+            if (!string.IsNullOrEmpty(filter.SponsorId))
+            {
+                filteredContracts = filteredContracts.Where(c => 
+                    c.SponsorId.Equals(filter.SponsorId, StringComparison.OrdinalIgnoreCase));
+                Console.WriteLine($"📋 Filtrado por patrocinador: {filter.SponsorId}");
+            }
+            
+            // Filtrar por evento si se especificó
+            if (!string.IsNullOrEmpty(filter.EventId))
+            {
+                // Como EventId no está en ContractRenewalDto, necesitamos obtener los contratos originales
+                var contractIds = filteredContracts.Select(c => Guid.Parse(c.Id)).ToList();
+                var allContracts = await _contractRepository.GetAllAsync();
+                var contractsWithEvents = allContracts.Where(c => contractIds.Contains(c.Id)).ToList();
+                
+                var contractIdsWithEvent = contractsWithEvents
+                    .Where(c => c.EventId == filter.EventId)
+                    .Select(c => c.Id.ToString())
+                    .ToList();
+                
+                filteredContracts = filteredContracts.Where(c => contractIdsWithEvent.Contains(c.Id));
+                Console.WriteLine($"📋 Filtrado por evento: {filter.EventId}");
+            }
+            
+            // Filtrar por valor mínimo si se especificó
+            if (filter.MinValue.HasValue)
+            {
+                filteredContracts = filteredContracts.Where(c => c.Value >= filter.MinValue.Value);
+                Console.WriteLine($"📋 Filtrado por valor mínimo: {filter.MinValue}");
+            }
+            
+            // Filtrar por estado de notificación si se especificó
+            if (filter.NotificationStatus.HasValue)
+            {
+                filteredContracts = filteredContracts.Where(c => c.NotificationSent == filter.NotificationStatus.Value);
+                Console.WriteLine($"📋 Filtrado por estado de notificación: {filter.NotificationStatus}");
+            }
+            
+            var result = filteredContracts.ToList();
+            Console.WriteLine($"✅ CU-PA-05.01.3: Encontrados {result.Count} contratos con los filtros aplicados");
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Obtiene un resumen estadístico de los contratos próximos a vencer
+        /// 🎯 CU-PA-05.01.3: Exposición de estadísticas de contratos próximos a vencer
+        /// </summary>
+        public async Task<ExpiringContractsSummaryDto> GetExpiringContractsSummaryAsync(int days = 30)
+        {
+            Console.WriteLine($"📊 CU-PA-05.01.3: Generando resumen de contratos próximos a vencer en {days} días");
+            
+            // Obtener todos los contratos próximos a vencer
+            var contracts = await GetContractsExpiringInDaysAsync(days);
+            var contractsList = contracts.ToList();
+            
+            // Crear el objeto de resumen
+            var summary = new ExpiringContractsSummaryDto
+            {
+                TotalExpiringContracts = contractsList.Count,
+                TotalValue = contractsList.Sum(c => c.Value),
+                GeneratedAt = DateTime.UtcNow
+            };
+            
+            // Agrupar por rango de días hasta vencimiento
+            var expirationRanges = new Dictionary<string, int>
+            {
+                { "1-7 días", contractsList.Count(c => c.DaysUntilExpiration <= 7) },
+                { "8-14 días", contractsList.Count(c => c.DaysUntilExpiration > 7 && c.DaysUntilExpiration <= 14) },
+                { "15-30 días", contractsList.Count(c => c.DaysUntilExpiration > 14 && c.DaysUntilExpiration <= 30) },
+                { "Más de 30 días", contractsList.Count(c => c.DaysUntilExpiration > 30) }
+            };
+            summary.ExpirationRanges = expirationRanges;
+            
+            // Agrupar por estado
+            summary.ContractsByStatus = contractsList
+                .GroupBy(c => c.Status)
+                .ToDictionary(g => g.Key, g => g.Count());
+            
+            // Calcular porcentaje de contratos notificados
+            int notifiedCount = contractsList.Count(c => c.NotificationSent);
+            summary.PercentageNotified = contractsList.Count > 0 
+                ? Math.Round((double)notifiedCount / contractsList.Count * 100, 2) 
+                : 0;
+            
+            // Obtener top patrocinadores
+            var topSponsors = contractsList
+                .GroupBy(c => new { Id = c.SponsorId, Name = c.SponsorName })
+                .Select(g => new SponsorExpiringContractsDto
+                {
+                    SponsorId = g.Key.Id,
+                    SponsorName = g.Key.Name,
+                    ContractCount = g.Count(),
+                    TotalValue = g.Sum(c => c.Value)
+                })
+                .OrderByDescending(s => s.ContractCount)
+                .Take(5)
+                .ToList();
+            
+            summary.TopSponsors = topSponsors;
+            
+            Console.WriteLine($"✅ CU-PA-05.01.3: Resumen generado con {summary.TotalExpiringContracts} contratos");
+            
+            return summary;
+        }
+
         #endregion
     }
 }

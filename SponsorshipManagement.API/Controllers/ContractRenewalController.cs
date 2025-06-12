@@ -14,6 +14,7 @@ namespace SponsorshipManagement.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class ContractRenewalController : ControllerBase
     {
         private readonly IContractRenewalService _renewalService;
@@ -25,30 +26,51 @@ namespace SponsorshipManagement.API.Controllers
 
         /// <summary>
         /// Obtiene contratos que vencen en los próximos N días
-        /// 🎯 CU-PA-05.01.1: Consulta de contratos próximos a vencer
+        /// 🎯 CU-PA-05.01.1 y CU-PA-05.01.3: Consulta y exposición de contratos próximos a vencer
         /// </summary>
         /// <param name="days">Número de días para considerar (por defecto 30)</param>
         /// <param name="includeStatuses">Estados de contrato a incluir (opcional)</param>
+        /// <param name="sponsorId">ID del patrocinador para filtrar (opcional)</param>
+        /// <param name="eventId">ID del evento para filtrar (opcional)</param>
+        /// <param name="minValue">Valor mínimo del contrato (opcional)</param>
+        /// <param name="notified">Filtrar por contratos ya notificados (opcional)</param>
         /// <returns>Lista de contratos próximos a vencer</returns>
         [HttpGet("expiring")]
+        [ProducesResponseType(typeof(IEnumerable<ContractRenewalDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ContractRenewalDto>>> GetExpiringContracts(
             [FromQuery] int days = 30,
-            [FromQuery] string[]? includeStatuses = null)
+            [FromQuery] string[]? includeStatuses = null,
+            [FromQuery] string? sponsorId = null,
+            [FromQuery] string? eventId = null,
+            [FromQuery] decimal? minValue = null,
+            [FromQuery] bool? notified = null)
         {
             try
             {
-                Console.WriteLine($"📥 Endpoint /api/ContractRenewal/expiring invocado con days={days}");
+                Console.WriteLine($"📥 CU-PA-05.01.3: Endpoint expiring invocado con days={days}");
                 
                 if (includeStatuses == null || includeStatuses.Length == 0)
                 {
                     includeStatuses = new[] { "Active", "Signed" };
                 }
                 
-                Console.WriteLine($"🔍 Buscando contratos con estados: {string.Join(", ", includeStatuses)}");
+                Console.WriteLine($"🔍 Parámetros de filtrado: estados={string.Join(",", includeStatuses)}, " +
+                                  $"sponsorId={sponsorId}, eventId={eventId}, minValue={minValue}, notified={notified}");
                 
-                var contracts = await _renewalService.GetContractsExpiringInDaysAsync(days, includeStatuses);
+                var expiringFilter = new ExpiringContractsFilterDto
+                {
+                    Days = days,
+                    IncludeStatuses = includeStatuses,
+                    SponsorId = sponsorId,
+                    EventId = eventId,
+                    MinValue = minValue,
+                    NotificationStatus = notified
+                };
                 
-                Console.WriteLine($"✅ Encontrados {contracts.Count()} contratos próximos a vencer");
+                var contracts = await _renewalService.GetContractsExpiringAsync(expiringFilter);
+                
+                Console.WriteLine($"✅ CU-PA-05.01.3: Encontrados {contracts.Count()} contratos próximos a vencer");
                 
                 return Ok(contracts);
             }
@@ -56,6 +78,35 @@ namespace SponsorshipManagement.API.Controllers
             {
                 Console.WriteLine($"❌ ERROR EN ENDPOINT: {ex.Message}");
                 Console.WriteLine($"❌ STACK TRACE: {ex.StackTrace}");
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un resumen estadístico de los contratos próximos a vencer
+        /// 🎯 CU-PA-05.01.3: Exposición de estadísticas de contratos próximos a vencer
+        /// </summary>
+        /// <param name="days">Número de días para considerar (por defecto 30)</param>
+        /// <returns>Resumen estadístico de contratos próximos a vencer</returns>
+        [HttpGet("expiring-summary")]
+        [ProducesResponseType(typeof(ExpiringContractsSummaryDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ExpiringContractsSummaryDto>> GetExpiringContractsSummary(
+            [FromQuery] int days = 30)
+        {
+            try
+            {
+                Console.WriteLine($"📥 CU-PA-05.01.3: Endpoint expiring-summary invocado con days={days}");
+                
+                var summary = await _renewalService.GetExpiringContractsSummaryAsync(days);
+                
+                Console.WriteLine($"✅ CU-PA-05.01.3: Generado resumen para {summary.TotalExpiringContracts} contratos");
+                
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ ERROR EN ENDPOINT: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
