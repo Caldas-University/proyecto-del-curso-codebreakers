@@ -16,13 +16,16 @@ namespace SponsorshipManagement.Application.Services
     {
         private readonly ISponsorRepository _sponsorRepository;
         private readonly IEventRepository _eventRepository;
+        private readonly IContractRepository _contractRepository;
         
         public NotificationService(
             ISponsorRepository sponsorRepository, 
-            IEventRepository eventRepository)
+            IEventRepository eventRepository,
+            IContractRepository contractRepository)
         {
             _sponsorRepository = sponsorRepository ?? throw new ArgumentNullException(nameof(sponsorRepository));
             _eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
+            _contractRepository = contractRepository ?? throw new ArgumentNullException(nameof(contractRepository));
         }
 
         /// <summary>
@@ -153,6 +156,209 @@ namespace SponsorshipManagement.Application.Services
                 Console.WriteLine($"⚠️ Error obteniendo organizadores del evento: {ex.Message}");
                 return await Task.FromResult(new List<string>());
             }
+        }
+        
+        /// <summary>
+        /// Genera un mensaje estructurado con opciones de renovación o finalización
+        /// 🎯 CU-PA-05.02.2: Mensajes estructurados según rol
+        /// </summary>
+        public async Task<ContractActionMessageDto> GenerateActionMessageAsync(string contractId, string recipientRole, string recipientEmail)
+        {
+            try
+            {
+                Console.WriteLine($"🎯 CU-PA-05.02.2: Generando mensaje estructurado para {recipientRole} ({recipientEmail})");
+                
+                // Obtener datos del contrato
+                var contract = await _contractRepository.GetByIdAsync(Guid.Parse(contractId));
+                if (contract == null)
+                    throw new ArgumentException($"Contrato con ID {contractId} no encontrado");
+                
+                // Crear objeto base del mensaje
+                var message = new ContractActionMessageDto
+                {
+                    ContractId = contractId,
+                    ContractTitle = contract.Title,
+                    ExpirationDate = contract.EndDate,
+                    DaysRemaining = (int)(contract.EndDate.Date - DateTime.UtcNow.Date).TotalDays,
+                    RecipientRole = recipientRole,
+                    RecipientEmail = recipientEmail
+                };
+                
+                // Personalizar mensaje según el rol
+                if (recipientRole.Equals("Patrocinador", StringComparison.OrdinalIgnoreCase))
+                {
+                    GenerateSponsorMessage(message);
+                }
+                else // Organizador
+                {
+                    GenerateOrganizerMessage(message);
+                }
+                
+                Console.WriteLine($"✅ CU-PA-05.02.2: Mensaje generado con {message.RenewalOptions.Count} opciones de renovación y {message.EndingOptions.Count} opciones de finalización");
+                
+                return message;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error generando mensaje estructurado: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Envía un mensaje estructurado - versión consola
+        /// </summary>
+        public async Task<bool> SendActionMessageAsync(ContractActionMessageDto message)
+        {
+            try
+            {
+                Console.WriteLine();
+                Console.WriteLine("===========================================================");
+                Console.WriteLine($"📧 MENSAJE PARA: {message.RecipientRole.ToUpper()} ({message.RecipientEmail})");
+                Console.WriteLine("===========================================================");
+                Console.WriteLine($"ASUNTO: {message.Subject}");
+                Console.WriteLine("-----------------------------------------------------------");
+                Console.WriteLine($"Contrato: {message.ContractTitle}");
+                Console.WriteLine($"Vence en: {message.DaysRemaining} días ({message.ExpirationDate:dd/MM/yyyy})");
+                Console.WriteLine();
+                Console.WriteLine(message.Introduction);
+                Console.WriteLine();
+                Console.WriteLine("ANÁLISIS DE DESEMPEÑO:");
+                Console.WriteLine(message.PerformanceSummary);
+                Console.WriteLine();
+                
+                if (message.RenewalOptions.Any())
+                {
+                    Console.WriteLine("OPCIONES DE RENOVACIÓN:");
+                    for (int i = 0; i < message.RenewalOptions.Count; i++)
+                    {
+                        Console.WriteLine($"[{i+1}] {message.RenewalOptions[i]}");
+                    }
+                    Console.WriteLine();
+                }
+                
+                if (message.EndingOptions.Any())
+                {
+                    Console.WriteLine("OPCIONES DE FINALIZACIÓN:");
+                    for (int i = 0; i < message.EndingOptions.Count; i++)
+                    {
+                        Console.WriteLine($"[{i+1}] {message.EndingOptions[i]}");
+                    }
+                    Console.WriteLine();
+                }
+                
+                Console.WriteLine(message.Closing);
+                Console.WriteLine("===========================================================");
+                
+                // Simular envío
+                await Task.Delay(100);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error enviando mensaje estructurado: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Genera mensaje personalizado para patrocinadores - versión consola
+        /// </summary>
+        private void GenerateSponsorMessage(ContractActionMessageDto message)
+        {
+            // Simulamos algunos datos de análisis para demostración
+            var sponsorPerformance = new
+            {
+                ROI = 135.2,
+                Reach = 125000,
+                Engagement = 15600,
+                TopChannels = new[] { "Redes Sociales", "Eventos Presenciales", "Email Marketing" }
+            };
+            
+            message.Subject = $"Opciones para su contrato de patrocinio '{message.ContractTitle}' que vence en {message.DaysRemaining} días";
+            
+            message.Introduction = 
+                $"Estimado Patrocinador,\n\n" +
+                $"Nos comunicamos con usted en relación al contrato de patrocinio '{message.ContractTitle}' " +
+                $"que vence el {message.ExpirationDate:dd/MM/yyyy} (en {message.DaysRemaining} días). " +
+                $"Queremos presentarle un resumen del desempeño de su inversión y las opciones disponibles.";
+            
+            message.PerformanceSummary = 
+                $"* ROI estimado: {sponsorPerformance.ROI:F2}%\n" +
+                $"* Alcance total: {sponsorPerformance.Reach:N0} impresiones\n" +
+                $"* Engagement: {sponsorPerformance.Engagement:N0} interacciones\n" +
+                $"* Canales con mejor desempeño: {string.Join(", ", sponsorPerformance.TopChannels)}";
+            
+            message.RenewalOptions = new List<string>
+            {
+                "Renovación Premium (24 meses): +15% valor, mayor exposición en canales digitales, presencia destacada en eventos",
+                "Renovación Estándar (12 meses): Mismo valor, continuidad en beneficios actuales",
+                "Renovación con Descuento (6 meses): -10% valor, período de prueba más corto con revisión trimestral"
+            };
+            
+            message.EndingOptions = new List<string>
+            {
+                "Finalización Estándar: Todos los beneficios finalizan en la fecha de vencimiento",
+                "Finalización con Opción de Retorno Prioritario: Derecho preferencial para futuras oportunidades (90 días)"
+            };
+            
+            message.Closing = 
+                "Agradecemos su confianza como patrocinador. Estamos a su disposición para discutir estas opciones " +
+                "y encontrar la mejor solución para sus objetivos de marketing y visibilidad.\n\n" +
+                "Atentamente,\nEl Equipo de Gestión de Patrocinios";
+        }
+
+        /// <summary>
+        /// Genera mensaje personalizado para organizadores - versión consola
+        /// </summary>
+        private void GenerateOrganizerMessage(ContractActionMessageDto message)
+        {
+            // Simulamos algunos datos de análisis para demostración
+            var organizerAnalysis = new
+            {
+                OverallScore = 82,
+                CompliancePercentage = 95.5,
+                CompletedCommitments = 18,
+                TotalCommitments = 20,
+                OverdueCommitments = 1,
+                RiskLevel = "Bajo",
+                Recommendation = "Renovar con condiciones actuales"
+            };
+            
+            message.Subject = $"Gestión de renovación: Contrato '{message.ContractTitle}' próximo a vencer";
+            
+            message.Introduction = 
+                $"Estimado Organizador,\n\n" +
+                $"Le informamos que el contrato de patrocinio '{message.ContractTitle}' " +
+                $"vencerá el {message.ExpirationDate:dd/MM/yyyy} (en {message.DaysRemaining} días). " +
+                $"A continuación presentamos el análisis de cumplimiento y las acciones recomendadas.";
+            
+            message.PerformanceSummary = 
+                $"* Score general: {organizerAnalysis.OverallScore}/100\n" +
+                $"* Cumplimiento de compromisos: {organizerAnalysis.CompliancePercentage:F2}%\n" +
+                $"* Compromisos completados: {organizerAnalysis.CompletedCommitments} de {organizerAnalysis.TotalCommitments}\n" +
+                $"* Compromisos vencidos: {organizerAnalysis.OverdueCommitments}\n" +
+                $"* Nivel de riesgo: {organizerAnalysis.RiskLevel}\n" +
+                $"* Recomendación: {organizerAnalysis.Recommendation}";
+            
+            message.RenewalOptions = new List<string>
+            {
+                "Renovación Mejorada: Incremento de 15% en valor, extensión de beneficios, duración de 24 meses",
+                "Renovación Estándar: Mantener condiciones actuales, duración de 12 meses",
+                "Renovación Condicional: Revisión trimestral de compromisos, duración 6 meses"
+            };
+            
+            message.EndingOptions = new List<string>
+            {
+                "Finalización Estándar: Cierre ordenado con informe final",
+                "Finalización con Transición: Período adicional para completar compromisos pendientes"
+            };
+            
+            message.Closing = 
+                "Como organizador del evento, su decisión sobre este contrato es crucial para la planificación futura. " +
+                "Estas opciones están basadas en el análisis objetivo del cumplimiento y el impacto generado.\n\n" +
+                "Saludos cordiales,\nDepartamento de Gestión de Contratos";
         }
         
         #region Métodos auxiliares

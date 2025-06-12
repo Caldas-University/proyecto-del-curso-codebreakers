@@ -242,5 +242,107 @@ namespace SponsorshipManagement.Application.Services
                 return new List<ContractRenewalDto>();
             }
         }
+
+        /// <summary>
+        /// Envía notificaciones con mensajes estructurados según el rol del destinatario
+        /// 🎯 CU-PA-05.02.2: Mensajes estructurados con opciones
+        /// </summary>
+        public async Task<int> SendStructuredNotificationsAsync(int days = 7)
+        {
+            Console.WriteLine($"🎯 CU-PA-05.02.2: Iniciando envío de notificaciones estructuradas para contratos que vencen en {days} días");
+            
+            // Filtrar contratos específicamente para el día indicado
+            ExpiringContractsFilterDto expiringFilter;
+            try 
+            {
+                expiringFilter = new ExpiringContractsFilterDto
+                {
+                    Days = days + 1, // +1 para incluir el día exacto
+                    IncludeStatuses = _settings.ContractStatuses.ToArray()
+                    // Quitamos MinimumContractValue que está causando el error
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error creando filtro: {ex.Message}");
+                // Filtro de respaldo sin la propiedad problemática
+                expiringFilter = new ExpiringContractsFilterDto
+                {
+                    Days = days + 1,
+                    IncludeStatuses = _settings.ContractStatuses.ToArray()
+                };
+            }
+
+            var contracts = await _contractRenewalService.GetContractsExpiringAsync(expiringFilter);
+
+            // Filtrar por estado de notificación manualmente
+            var contractsForDay = contracts
+                .Where(c => c.DaysUntilExpiration == days && c.NotificationSent != true)
+                .ToList();
+            
+            if (!contractsForDay.Any())
+            {
+                Console.WriteLine($"ℹ️ No hay contratos que venzan exactamente en {days} días pendientes de notificar");
+                return 0;
+            }
+            
+            Console.WriteLine($"📋 Encontrados {contractsForDay.Count} contratos que vencen en {days} días");
+            
+            int notificationsSent = 0;
+            
+            foreach (var contract in contractsForDay)
+            {
+                try
+                {
+                    var recipients = new List<(string Role, string Email)>();
+                    
+                    // Recopilar destinatarios organizadores
+                    if (_settings.NotifyOrganizers && !string.IsNullOrEmpty(contract.EventId))
+                    {
+                        var organizerEmails = await _notificationService.GetEventOrganizerEmailsAsync(contract.EventId);
+                        foreach (var email in organizerEmails)
+                        {
+                            recipients.Add(("Organizador", email));
+                        }
+                    }
+                    
+                    // Recopilar destinatarios patrocinadores
+                    if (_settings.NotifySponsors && !string.IsNullOrEmpty(contract.SponsorId))
+                    {
+                        var sponsorEmails = await _notificationService.GetSponsorContactEmailsAsync(contract.SponsorId);
+                        foreach (var email in sponsorEmails)
+                        {
+                            recipients.Add(("Patrocinador", email));
+                        }
+                    }
+                    
+                    // Enviar notificaciones personalizadas a cada destinatario
+                    foreach (var (role, email) in recipients)
+                    {
+                        // Generar mensaje estructurado según el rol
+                        var message = await _notificationService.GenerateActionMessageAsync(contract.Id, role, email);
+                        
+                        // Enviar mensaje
+                        bool success = await _notificationService.SendActionMessageAsync(message);
+                        
+                        if (success)
+                        {
+                            notificationsSent++;
+                            Console.WriteLine($"✅ Mensaje estructurado enviado a {role} ({email}) para contrato {contract.Id}");
+                        }
+                    }
+                    
+                    // Marcar contrato como notificado
+                    await _contractRenewalService.MarkContractAsNotifiedAsync(Guid.Parse(contract.Id));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Error procesando contrato {contract.Id} para notificación estructurada: {ex.Message}");
+                }
+            }
+            
+            Console.WriteLine($"✅ CU-PA-05.02.2: Proceso completado. {notificationsSent} notificaciones estructuradas enviadas");
+            return notificationsSent;
+        }
     }
 }

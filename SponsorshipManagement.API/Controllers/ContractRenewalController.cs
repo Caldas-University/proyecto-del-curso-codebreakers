@@ -18,10 +18,14 @@ namespace SponsorshipManagement.API.Controllers
     public class ContractRenewalController : ControllerBase
     {
         private readonly IContractRenewalService _renewalService;
+        private readonly INotificationService _notificationService;
 
-        public ContractRenewalController(IContractRenewalService renewalService)
+        public ContractRenewalController(
+            IContractRenewalService renewalService,
+            INotificationService notificationService)
         {
             _renewalService = renewalService;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -64,8 +68,8 @@ namespace SponsorshipManagement.API.Controllers
                     IncludeStatuses = includeStatuses,
                     SponsorId = sponsorId,
                     EventId = eventId,
-                    MinValue = minValue,
-                    NotificationStatus = notified
+                    MinimumContractValue = minValue,  // Corregido: MinValue -> MinimumContractValue
+                    NotificationSent = notified       // Corregido: NotificationStatus -> NotificationSent
                 };
                 
                 var contracts = await _renewalService.GetContractsExpiringAsync(expiringFilter);
@@ -169,6 +173,110 @@ namespace SponsorshipManagement.API.Controllers
             {
                 Console.WriteLine($"❌ Error en validación: {ex.Message}");
                 Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Genera un mensaje estructurado para un contrato
+        /// 🎯 CU-PA-05.02.2: Mensajes estructurados según rol
+        /// </summary>
+        [HttpGet("{id}/message")]
+        [ProducesResponseType(typeof(ContractActionMessageDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ContractActionMessageDto>> GenerateMessage(
+            Guid id, 
+            [FromQuery] string role = "Patrocinador", 
+            [FromQuery] string email = "test@example.com")
+        {
+            try
+            {
+                Console.WriteLine($"📥 CU-PA-05.02.2: Generando mensaje para contrato {id}, rol={role}, email={email}");
+                
+                if (string.IsNullOrEmpty(role))
+                {
+                    role = "Patrocinador";
+                }
+                
+                if (string.IsNullOrEmpty(email))
+                {
+                    email = "test@example.com";
+                }
+                
+                // Verificar que el contrato existe
+                var contract = await _renewalService.GetContractByIdAsync(id);
+                if (contract == null)
+                {
+                    return NotFound($"Contrato con ID {id} no encontrado");
+                }
+                
+                var message = await _notificationService.GenerateActionMessageAsync(id.ToString(), role, email);
+                
+                Console.WriteLine($"✅ CU-PA-05.02.2: Mensaje generado con {message.RenewalOptions.Count} opciones de renovación");
+                
+                return Ok(message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error generando mensaje: {ex.Message}");
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Envía notificación estructurada para un contrato
+        /// 🎯 CU-PA-05.02.2: Envío de mensajes estructurados
+        /// </summary>
+        [HttpPost("{id}/send-structured-notification")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> SendStructuredNotification(
+            Guid id, 
+            [FromQuery] string role = "Patrocinador",
+            [FromQuery] string email = "test@example.com")
+        {
+            try
+            {
+                Console.WriteLine($"📥 CU-PA-05.02.2: Enviando notificación para contrato {id}, rol={role}, email={email}");
+                
+                if (string.IsNullOrEmpty(role))
+                {
+                    role = "Patrocinador";
+                }
+                
+                if (string.IsNullOrEmpty(email))
+                {
+                    email = "test@example.com";
+                }
+                
+                // Verificar que el contrato existe
+                var contract = await _renewalService.GetContractByIdAsync(id);
+                if (contract == null)
+                {
+                    return NotFound($"Contrato con ID {id} no encontrado");
+                }
+                
+                // Generar el mensaje
+                var message = await _notificationService.GenerateActionMessageAsync(id.ToString(), role, email);
+                
+                // Enviar el mensaje
+                bool success = await _notificationService.SendActionMessageAsync(message);
+                
+                // Marcar el contrato como notificado (opcional)
+                if (success)
+                {
+                    await _renewalService.MarkContractAsNotifiedAsync(id);
+                }
+                
+                Console.WriteLine($"✅ CU-PA-05.02.2: Notificación enviada correctamente");
+                
+                return Ok(new { success = true, message = "Notificación enviada correctamente" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error enviando notificación: {ex.Message}");
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }

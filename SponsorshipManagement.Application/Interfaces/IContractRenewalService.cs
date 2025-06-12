@@ -52,5 +52,13 @@ namespace SponsorshipManagement.Application.Interfaces
         /// <param name="contractId">ID del contrato</param>
         /// <returns>True si se marcó correctamente</returns>
         Task<bool> MarkContractAsNotifiedAsync(Guid contractId);
+
+        /// <summary>
+        /// Obtiene un contrato por su ID
+        /// 🎯 CU-PA-05.02.1: Consulta de contrato por ID
+        /// </summary>
+        /// <param name="id">ID del contrato</param>
+        /// <returns>Contrato o null si no existe</returns>
+        Task<ContractRenewalDto?> GetContractByIdAsync(Guid id);
     }
 }

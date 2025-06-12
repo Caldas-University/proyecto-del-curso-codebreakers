@@ -37,5 +37,16 @@ namespace SponsorshipManagement.Application.Interfaces
         /// <param name="eventId">ID del evento</param>
         /// <returns>Lista de direcciones de correo electrónico</returns>
         Task<IEnumerable<string>> GetEventOrganizerEmailsAsync(string eventId);
+
+        /// <summary>
+        /// Genera un mensaje estructurado con opciones de renovación o finalización
+        /// 🎯 CU-PA-05.02.2: Mensajes estructurados según rol
+        /// </summary>
+        Task<ContractActionMessageDto> GenerateActionMessageAsync(string contractId, string recipientRole, string recipientEmail);
+
+        /// <summary>
+        /// Envía un mensaje estructurado con opciones de renovación o finalización
+        /// </summary>
+        Task<bool> SendActionMessageAsync(ContractActionMessageDto message);
     }
 }

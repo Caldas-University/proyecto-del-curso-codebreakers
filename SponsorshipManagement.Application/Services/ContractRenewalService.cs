@@ -561,17 +561,17 @@ namespace SponsorshipManagement.Application.Services
             }
             
             // Filtrar por valor mínimo si se especificó
-            if (filter.MinValue.HasValue)
+            if (filter.MinimumContractValue.HasValue)
             {
-                filteredContracts = filteredContracts.Where(c => c.Value >= filter.MinValue.Value);
-                Console.WriteLine($"📋 Filtrado por valor mínimo: {filter.MinValue}");
+                filteredContracts = filteredContracts.Where(c => c.Value >= filter.MinimumContractValue.Value);
+                Console.WriteLine($"📋 Filtrado por valor mínimo: {filter.MinimumContractValue}");
             }
             
             // Filtrar por estado de notificación si se especificó
-            if (filter.NotificationStatus.HasValue)
+            if (filter.NotificationSent.HasValue)
             {
-                filteredContracts = filteredContracts.Where(c => c.NotificationSent == filter.NotificationStatus.Value);
-                Console.WriteLine($"📋 Filtrado por estado de notificación: {filter.NotificationStatus}");
+                filteredContracts = filteredContracts.Where(c => c.NotificationSent == filter.NotificationSent.Value);
+                Console.WriteLine($"📋 Filtrado por estado de notificación: {filter.NotificationSent}");
             }
             
             var result = filteredContracts.ToList();
@@ -643,5 +643,73 @@ namespace SponsorshipManagement.Application.Services
         }
 
         #endregion
+
+        /// <summary>
+        /// Obtiene un contrato por su ID
+        /// 🎯 CU-PA-05.02.1: Consulta de contrato por ID
+        /// </summary>
+        public async Task<ContractRenewalDto?> GetContractByIdAsync(Guid id)
+        {
+            // Obtener el contrato desde el repositorio
+            var contract = await _contractRepository.GetByIdAsync(id);
+            
+            // Verificar si el contrato existe
+            if (contract == null)
+            {
+                Console.WriteLine($"❌ Contrato con ID {id} no encontrado");
+                return null;
+            }
+            
+            // Valores por defecto para notificaciones
+            bool notificationSent = false;
+            DateTime? lastNotificationDate = null;
+            
+            // Verificar si el contrato tiene propiedades de notificación
+            var contractType = contract.GetType();
+            var notificationProperty = contractType.GetProperty("NotificationSent");
+            var dateProperty = contractType.GetProperty("LastNotificationDate");
+            
+            if (notificationProperty != null && notificationProperty.GetValue(contract) != null)
+            {
+                notificationSent = Convert.ToBoolean(notificationProperty.GetValue(contract));
+            }
+            
+            if (dateProperty != null && dateProperty.GetValue(contract) != null)
+            {
+                lastNotificationDate = dateProperty.GetValue(contract) as DateTime?;
+            }
+            
+            // Obtener información del patrocinador
+            string sponsorName = "Desconocido";
+            try
+            {
+                var sponsor = await _sponsorRepository.GetByDocumentAsync(contract.SponsorId.ToString());
+                if (sponsor != null)
+                {
+                    sponsorName = sponsor.Name;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Error obteniendo información del patrocinador {contract.SponsorId}: {ex.Message}");
+            }
+            
+            // Crear DTO con todas las propiedades requeridas
+            return new ContractRenewalDto
+            {
+                Id = contract.Id.ToString(),
+                Title = contract.Title ?? string.Empty,
+                Description = contract.Description ?? string.Empty,
+                Value = contract.Value,
+                StartDate = contract.StartDate,
+                EndDate = contract.EndDate,
+                Status = contract.Status.ToString() ?? "Unknown",
+                SponsorId = contract.SponsorId?.ToString() ?? string.Empty,
+                SponsorName = sponsorName,
+                DaysUntilExpiration = (int)(contract.EndDate - DateTime.UtcNow).TotalDays,
+                NotificationSent = notificationSent,
+                LastNotificationDate = lastNotificationDate
+            };
+        }
     }
 }

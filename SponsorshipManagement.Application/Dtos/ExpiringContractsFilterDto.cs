@@ -31,11 +31,11 @@ namespace SponsorshipManagement.Application.Dtos
         /// <summary>
         /// Valor mínimo del contrato
         /// </summary>
-        public decimal? MinValue { get; set; }
+        public decimal? MinimumContractValue { get; set; }
 
         /// <summary>
-        /// Estado de notificación (true=notificados, false=no notificados, null=todos)
+        /// Indica si la notificación fue enviada (true=enviada, false=no enviada, null=todos)
         /// </summary>
-        public bool? NotificationStatus { get; set; }
+        public bool? NotificationSent { get; set; }
     }
 }
