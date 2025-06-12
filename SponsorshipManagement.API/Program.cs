@@ -2,6 +2,7 @@ using SponsorshipManagement.Application.Interfaces;
 using SponsorshipManagement.Application.Services;
 using SponsorshipManagement.Domain.Interfaces;
 using SponsorshipManagement.Infrastructure.Repositories;
+using SponsorshipManagement.API.Services; // Añadir esta línea
 using System.Reflection;
 using System.Net;
 
@@ -59,6 +60,14 @@ builder.Services.AddScoped<IContractComplianceService, ContractComplianceService
 
 // 🎯 SERVICIOS PARA CU-PA-05 - Gestión de renovaciones y finalización de contratos
 builder.Services.AddScoped<IContractRenewalService, ContractRenewalService>();
+
+// 🎯 SERVICIOS PARA CU-PA-05.02.1 - Notificación automática de contratos a vencer
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IContractExpirationNotifier, ContractExpirationNotifier>();
+
+// Registrar servicio en segundo plano para notificaciones automáticas
+// Comentar esta línea si se prefiere usar el controlador con un job externo
+builder.Services.AddHostedService<ContractExpirationBackgroundService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

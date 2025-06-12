@@ -67,5 +67,10 @@ namespace SponsorshipManagement.Application.Dtos
         /// Fecha de última notificación de renovación
         /// </summary>
         public DateTime? LastNotificationDate { get; set; }
+
+        /// <summary>
+        /// ID del evento asociado al contrato
+        /// </summary>
+        public string EventId { get; set; } = string.Empty;
     }
 }
