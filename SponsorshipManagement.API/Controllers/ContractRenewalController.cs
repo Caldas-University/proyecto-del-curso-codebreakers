@@ -280,5 +280,69 @@ namespace SponsorshipManagement.API.Controllers
                 return StatusCode(500, $"Error interno: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Registra una decisión de renovación o finalización de contrato
+        /// 🎯 CU-PA-05.02.3: Backend para registrar decisiones de renovación o finalización
+        /// </summary>
+        /// <param name="decision">Datos de la decisión</param>
+        /// <returns>Resultado del registro de la decisión</returns>
+        [HttpPost("register-decision")]
+        [ProducesResponseType(typeof(ContractDecisionResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ContractDecisionResponseDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ContractDecisionResponseDto>> RegisterContractDecision(
+            [FromBody] ContractDecisionDto decision)
+        {
+            try
+            {
+                Console.WriteLine($"📥 CU-PA-05.02.3: Endpoint register-decision invocado para contrato {decision.ContractId}");
+                
+                // Validaciones básicas
+                if (string.IsNullOrEmpty(decision.ContractId))
+                {
+                    return BadRequest(new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = "El ID del contrato es requerido"
+                    });
+                }
+                
+                if (string.IsNullOrEmpty(decision.DecisionType))
+                {
+                    return BadRequest(new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = "El tipo de decisión es requerido"
+                    });
+                }
+                
+                if (string.IsNullOrEmpty(decision.UserEmail) || string.IsNullOrEmpty(decision.UserRole))
+                {
+                    return BadRequest(new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = "El email y rol del usuario son requeridos"
+                    });
+                }
+                
+                // Registrar la decisión
+                var result = await _renewalService.RegisterContractDecisionAsync(decision);
+                
+                if (!result.Success)
+                {
+                    return BadRequest(result);
+                }
+                
+                Console.WriteLine($"✅ CU-PA-05.02.3: Decisión registrada correctamente con ID {result.DecisionId}");
+                
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error en endpoint register-decision: {ex.Message}");
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
     }
 }

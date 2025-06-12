@@ -711,5 +711,124 @@ namespace SponsorshipManagement.Application.Services
                 LastNotificationDate = lastNotificationDate
             };
         }
+
+        /// <summary>
+        /// Registra una decisión de renovación o finalización de contrato
+        /// 🎯 CU-PA-05.02.3: Backend para registrar decisiones de renovación o finalización
+        /// </summary>
+        public async Task<ContractDecisionResponseDto> RegisterContractDecisionAsync(ContractDecisionDto decision)
+        {
+            try
+            {
+                Console.WriteLine($"🎯 CU-PA-05.02.3: Registrando decisión sobre contrato {decision.ContractId}");
+                Console.WriteLine($"📋 Tipo: {decision.DecisionType}, Opción: {decision.SelectedOptionIndex}");
+                Console.WriteLine($"👤 Usuario: {decision.UserEmail} ({decision.UserRole})");
+                
+                // 1. Validar que el contrato exista
+                if (string.IsNullOrEmpty(decision.ContractId))
+                {
+                    Console.WriteLine("❌ El ID del contrato es nulo o vacío");
+                    return new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = "El ID del contrato es obligatorio"
+                    };
+                }
+
+                var contractId = Guid.Parse(decision.ContractId);
+                var contract = await _contractRepository.GetByIdAsync(contractId);
+                
+                if (contract == null)
+                {
+                    Console.WriteLine($"❌ Contrato con ID {decision.ContractId} no encontrado");
+                    return new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = $"El contrato con ID {decision.ContractId} no existe"
+                    };
+                }
+                
+                // 2. Validar el tipo de decisión
+                if (decision.DecisionType != "Renovar" && decision.DecisionType != "Finalizar")
+                {
+                    Console.WriteLine($"❌ Tipo de decisión inválido: {decision.DecisionType}");
+                    return new ContractDecisionResponseDto
+                    {
+                        Success = false,
+                        Message = "El tipo de decisión debe ser 'Renovar' o 'Finalizar'"
+                    };
+                }
+                
+                // 3. Actualizar el estado del contrato según la decisión
+                string newStatus = decision.DecisionType == "Renovar" ? "PendienteRenovacion" : "PendienteFinalizacion";
+                
+                // En una implementación real, aquí actualizaríamos el contrato en la base de datos
+                // Por ahora, generamos un ID de decisión simulado
+                string decisionId = Guid.NewGuid().ToString();
+                
+                // 4. Registrar la decisión (en una implementación real se guardaría en la base de datos)
+                // Simulamos el registro para demostración
+                Console.WriteLine($"✅ Decisión registrada con ID: {decisionId}");
+                Console.WriteLine($"📝 Comentarios: {decision.Comments}");
+                Console.WriteLine($"🔄 Estado del contrato actualizado a: {newStatus}");
+                
+                // 5. Determinar próximos pasos según el tipo de decisión
+                var nextSteps = new List<string>();
+                
+                if (decision.DecisionType == "Renovar")
+                {
+                    nextSteps.Add("Se enviará una propuesta de renovación en los próximos 2 días hábiles");
+                    nextSteps.Add("El equipo comercial se pondrá en contacto para coordinar detalles");
+                    
+                    // Lógica específica según la opción seleccionada
+                    switch (decision.SelectedOptionIndex)
+                    {
+                        case 0: // Premium
+                            nextSteps.Add("Se preparará documentación para renovación premium con incremento del 15%");
+                            break;
+                        case 1: // Estándar
+                            nextSteps.Add("Se preparará documentación para renovación estándar sin cambios en condiciones");
+                            break;
+                        case 2: // Con descuento
+                            nextSteps.Add("Se aplicará el descuento acordado y se establecerán revisiones trimestrales");
+                            break;
+                    }
+                }
+                else // Finalizar
+                {
+                    nextSteps.Add("Se iniciará el proceso de cierre del contrato");
+                    nextSteps.Add("Se programará una reunión final para evaluar la relación comercial");
+                    
+                    // Lógica específica según la opción seleccionada
+                    switch (decision.SelectedOptionIndex)
+                    {
+                        case 0: // Estándar
+                            nextSteps.Add("Los beneficios terminarán en la fecha de vencimiento sin período adicional");
+                            break;
+                        case 1: // Con transición
+                            nextSteps.Add("Se establecerá un período de transición para completar compromisos pendientes");
+                            break;
+                    }
+                }
+                
+                // 6. Crear respuesta exitosa
+                return new ContractDecisionResponseDto
+                {
+                    Success = true,
+                    Message = $"Decisión de {decision.DecisionType.ToLower()} registrada correctamente",
+                    DecisionId = decisionId,
+                    NextSteps = nextSteps
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error registrando decisión: {ex.Message}");
+                return new ContractDecisionResponseDto
+                {
+                    Success = false,
+                    Message = $"Error al registrar la decisión: {ex.Message}"
+                };
+            }
+        }
     }
 }

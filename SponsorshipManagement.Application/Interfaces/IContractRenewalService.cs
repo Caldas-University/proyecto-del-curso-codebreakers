@@ -60,5 +60,13 @@ namespace SponsorshipManagement.Application.Interfaces
         /// <param name="id">ID del contrato</param>
         /// <returns>Contrato o null si no existe</returns>
         Task<ContractRenewalDto?> GetContractByIdAsync(Guid id);
+
+        /// <summary>
+        /// Registra una decisión de renovación o finalización de contrato
+        /// 🎯 CU-PA-05.02.3: Backend para registrar decisiones de renovación o finalización
+        /// </summary>
+        /// <param name="decision">Datos de la decisión</param>
+        /// <returns>Respuesta con el resultado del registro</returns>
+        Task<ContractDecisionResponseDto> RegisterContractDecisionAsync(ContractDecisionDto decision);
     }
 }
